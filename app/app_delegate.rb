@@ -13,9 +13,10 @@ class AppDelegate
   end
 
   def init_deck
+    application_controller = ApplicationContainerController.alloc.init
+    nav_controller ||= UINavigationController.alloc.initWithRootViewController(application_controller)
     left_controller = NavigationController.alloc.init
-    application_controller = ApplicationController.alloc.initWithApp nil
-    deck_controller = IIViewDeckController.alloc.initWithCenterViewController(application_controller, leftViewController: left_controller)
+    deck_controller = IIViewDeckController.alloc.initWithCenterViewController(nav_controller, leftViewController: left_controller)
     @window.rootViewController = deck_controller
   end
 end

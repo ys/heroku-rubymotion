@@ -33,6 +33,7 @@ class NavigationController < UIViewController
     cell.text = @apps[indexPath.row].name
     cell.textLabel.backgroundColor = UIColor.clearColor
     cell.textLabel.color = UIColor.grayColor
+    cell.imageView.setImage UIImage.imageNamed("app_icon.png")
     cell.contentView.backgroundColor = UIColor.clearColor
     selectedBackgroundView = UIView.alloc.initWithFrame(cell.frame)
     selectedBackgroundView.backgroundColor = UIColor.colorWithRed( 0.53, green: 0.53, blue: 0.53, alpha: 0.6)
@@ -50,11 +51,10 @@ class NavigationController < UIViewController
 
   def switch_to_app(indexPath)
     self.viewDeckController.closeLeftViewBouncing -> (controller) do
-      @application_controller = ApplicationController.alloc.initWithApp @apps[indexPath.row]
-      @nav_controller = UINavigationController.alloc.initWithRootViewController(@application_controller)
-      controller.centerController = @nav_controller
+      @application_controller = ApplicationContainerController.alloc.init
+      @application_controller.app = @apps[indexPath.row]
+      self.viewDeckController.centerController.setViewControllers [@application_controller], animated: false
     end
   end
-
 end
 
