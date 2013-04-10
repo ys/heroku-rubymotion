@@ -51,10 +51,22 @@ class NavigationController < UIViewController
 
   def switch_to_app(indexPath)
     self.viewDeckController.closeLeftViewBouncing -> (controller) do
-      @application_controller = ApplicationContainerController.alloc.init
-      @application_controller.app = @apps[indexPath.row]
-      self.viewDeckController.centerController.setViewControllers [@application_controller], animated: false
+      app = @apps[indexPath.row]
+      app
+      @application_controller = ApplicationController.alloc.init
+      @application_controller.app = app
+      @ps_controller = ProcessesController.alloc.init
+      @ps_controller.app = app
+      @config_controller = ConfigController.alloc.init
+      @config_controller.app = app
+      @addons_controller = AddonsController.alloc.init
+      @addons_controller.app = app
+      @tab_controller ||= ApplicationContainerController.alloc.initWithNibName(nil, bundle: nil)
+      @tab_controller.viewControllers = [@application_controller, @ps_controller, @addons_controller, @config_controller ]
+      @tab_controller.title = app.name
+      self.viewDeckController.centerController.setViewControllers [@tab_controller], animated: false
     end
   end
+
 end
 

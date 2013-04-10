@@ -1,20 +1,23 @@
-class ProcessesController < UITableViewController
+class AddonsController < UITableViewController
 
   attr_accessor :app
 
   def init
     super
-    tab_bar_item = UITabBarItem.alloc.initWithTitle "PS", image:UIImage.imageNamed("ps.png"), tag: 2
+    tab_bar_item = UITabBarItem.alloc.initWithTitle "addons", image: UIImage.imageNamed("addons.png"), tag: 3
     self.tabBarItem = tab_bar_item
+    @data = []
     self
   end
 
-
   def viewDidLoad
     super
-    @data = @app.process_types_with_count
-    self.view.separatorColor = UIColor.clearColor
-    self.view.backgroundColor = UIColor.colorWithPatternImage UIImage.imageNamed("back.png")
+    @app.load_addons do |addons|
+      @data = addons
+      view.reloadData
+    end
+    view.separatorColor = UIColor.clearColor
+    view.backgroundColor = UIColor.colorWithPatternImage UIImage.imageNamed("back.png")
   end
 
   def tableView(tableView, cellForRowAtIndexPath: indexPath)
@@ -24,19 +27,13 @@ class ProcessesController < UITableViewController
     cell = tableView.dequeueReusableCellWithIdentifier(@reuseIdentifier) || begin
       UITableViewCell.alloc.initWithStyle(UITableViewCellStyleDefault, reuseIdentifier:@reuseIdentifier)
     end
-    ps = @data[indexPath.row]
+    addon = @data[indexPath.row]
 
-    cell.textLabel.text = ps.type
+    cell.textLabel.text = addon.full_description
     cell.textLabel.textColor = UIColor.whiteColor
     cell.textLabel.backgroundColor = UIColor.clearColor
     cell.contentView.backgroundColor = UIColor.clearColor
 
-    count_label = UILabel.alloc.initWithFrame(CGRectMake(0, 0, 16, 16))
-    count_label.text = ps.count.to_s
-    count_label.textColor = UIColor.whiteColor
-    count_label.backgroundColor = UIColor.clearColor
-
-    cell.accessoryView = count_label
     cell
   end
 
@@ -44,4 +41,7 @@ class ProcessesController < UITableViewController
     @data.size
   end
 
+  def tableView(tableView, didSelectRowAtIndexPath: indexPath)
+    puts @data[indexPath.row].url
+  end
 end

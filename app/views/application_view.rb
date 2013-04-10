@@ -33,14 +33,6 @@ class ApplicationView < UIView
       @other_dynos_count_label.textAlignment = UITextAlignmentCenter
       @other_dynos_count_label.font = UIFont.systemFontOfSize 40
       self.addSubview @other_dynos_count_label
-
-      ps_button = UIButton.buttonWithType UIButtonTypeRoundedRect
-      ps_button.setTitle "Show processes", forState: UIControlStateNormal
-      ps_button.frame = [[10, 180], [300, 50]]
-      ps_button.addTarget(self.target,
-        action: :switch_to_processes,
-        forControlEvents: UIControlEventTouchUpInside)
-      self.addSubview ps_button
     end
   end
 

@@ -1,8 +1,8 @@
 class Process
-  APP_PROPERTIES = [:id, :command, :pretty_state,
+  PS_PROPERTIES = [:id, :command, :pretty_state,
                     :process, :size, :state]
 
-  APP_PROPERTIES.each do |field|
+  PS_PROPERTIES.each do |field|
     attr_accessor field
   end
 
