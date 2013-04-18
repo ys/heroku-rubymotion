@@ -3,7 +3,7 @@ class ApplicationController < UIViewController
 
   def init
     super
-    tab_bar_item = UITabBarItem.alloc.initWithTitle "app", image:UIImage.imageNamed("app.png"), tag: 1
+    tab_bar_item = UITabBarItem.alloc.initWithTitle "app", image:"app.png".uiimage, tag: 1
     self.tabBarItem = tab_bar_item
     self
   end
@@ -21,12 +21,12 @@ class ApplicationController < UIViewController
     unless @app.nil?
       add_app_view
     end
-    self.view.backgroundColor = UIColor.colorWithPatternImage UIImage.imageNamed("back.png")
+    self.view.backgroundColor = "back.png".uicolor
   end
 
   def add_show_menu_button
     backButton = UIButton.alloc.initWithFrame [[0, 0], [26, 26]]
-    backButton.setImage UIImage.imageNamed("burger.png"), forState: UIControlStateNormal
+    backButton.setImage("burger.png".uiimage, forState: UIControlStateNormal)
     backButton.setShowsTouchWhenHighlighted true
     backButton.addTarget self.viewDeckController, action: "toggleLeftView", forControlEvents: UIControlEventTouchDown
     barBackItem = UIBarButtonItem.alloc.initWithCustomView backButton

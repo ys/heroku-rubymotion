@@ -18,8 +18,8 @@ class NavigationController < UIViewController
     self.view.addSubview @table
     @table.dataSource = self
     @table.delegate = self
-    @table.separatorColor = UIColor.clearColor
-    @table.backgroundColor = UIColor.whiteColor
+    @table.separatorColor = 0xcccccc.uicolor
+    @table.backgroundColor = :white.uicolor
   end
 
   def tableView(tableView, cellForRowAtIndexPath: indexPath)
@@ -31,12 +31,12 @@ class NavigationController < UIViewController
 
     # put your data in the cell
     cell.text = @apps[indexPath.row].name
-    cell.textLabel.backgroundColor = UIColor.clearColor
-    cell.textLabel.color = UIColor.grayColor
-    cell.imageView.setImage UIImage.imageNamed("app_icon.png")
-    cell.contentView.backgroundColor = UIColor.clearColor
+    cell.textLabel.backgroundColor = :clear.uicolor
+    cell.textLabel.color = :gray.uicolor
+    cell.imageView.setImage "app_icon.png".uiimage
+    cell.contentView.backgroundColor = :clear.uicolor
     selectedBackgroundView = UIView.alloc.initWithFrame(cell.frame)
-    selectedBackgroundView.backgroundColor = UIColor.colorWithRed( 0.53, green: 0.53, blue: 0.53, alpha: 0.6)
+    selectedBackgroundView.backgroundColor = 0xcccccc.uicolor
     cell.selectedBackgroundView = selectedBackgroundView
     cell
   end
@@ -49,12 +49,17 @@ class NavigationController < UIViewController
     switch_to_app(indexPath)
   end
 
+  def tableView(tableView, titleForHeaderInSection:section)
+    "Applications"
+  end
+
   def switch_to_app(indexPath)
     self.viewDeckController.closeLeftViewBouncing -> (controller) do
       app = @apps[indexPath.row]
       app
       @application_controller = ApplicationController.alloc.init
       @application_controller.app = app
+      self.viewDeckController.panningView = @application_controller.view
       @ps_controller = ProcessesController.alloc.init
       @ps_controller.app = app
       @config_controller = ConfigController.alloc.init

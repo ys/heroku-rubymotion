@@ -1,8 +1,20 @@
 class Addon
-  ADDON_PROPERTIES = [:name, :description, :url,
-                      :beta, :state, :configured, :attachable, :group_description,
-                      :sso_url, :plan_description, :terms_of_service, :slug,
-                      :price, :consumes_dyno_hours, :selective, :attachment_name]
+  ADDON_PROPERTIES = [:attachable,
+                      :attachment_name,
+                      :beta,
+                      :configured,
+                      :consumes_dyno_hours,
+                      :description,
+                      :group_description,
+                      :name,
+                      :plan_description,
+                      :price,
+                      :selective,
+                      :slug,
+                      :sso_url,
+                      :state,
+                      :terms_of_service,
+                      :url]
 
   ADDON_PROPERTIES.each do |field|
     attr_accessor field

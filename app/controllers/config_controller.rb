@@ -4,7 +4,7 @@ class ConfigController < UITableViewController
 
   def init
     super
-    tab_bar_item = UITabBarItem.alloc.initWithTitle "config", image:UIImage.imageNamed("config.png"), tag: 4
+    tab_bar_item = UITabBarItem.alloc.initWithTitle "config", image:"config.png".uiimage, tag: 4
     self.tabBarItem = tab_bar_item
     @data = []
     self
@@ -16,8 +16,8 @@ class ConfigController < UITableViewController
       @data = config
       view.reloadData
     end
-    view.separatorColor = UIColor.clearColor
-    view.backgroundColor = UIColor.colorWithPatternImage UIImage.imageNamed("back.png")
+    view.separatorColor = 0xcccccc.uicolor
+    view.backgroundColor = "back.png".uicolor
   end
 
   def tableView(tableView, cellForRowAtIndexPath: indexPath)
@@ -25,21 +25,20 @@ class ConfigController < UITableViewController
     @reuseIdentifier ||= "CONFIG"
 
     cell = tableView.dequeueReusableCellWithIdentifier(@reuseIdentifier) || begin
-      UITableViewCell.alloc.initWithStyle(UITableViewCellStyleDefault, reuseIdentifier:@reuseIdentifier)
+      UITableViewCell.alloc.initWithStyle(UITableViewCellStyleSubtitle, reuseIdentifier:@reuseIdentifier)
     end
     config_var = @data[indexPath.row]
 
     cell.textLabel.text = config_var.key
-    cell.textLabel.textColor = UIColor.whiteColor
-    cell.textLabel.backgroundColor = UIColor.clearColor
-    cell.contentView.backgroundColor = UIColor.clearColor
+    cell.textLabel.textColor = 0x555555.uicolor
+    cell.textLabel.backgroundColor = :clear.uicolor
+    cell.contentView.backgroundColor = :clear.uicolor
 
-    value_label = UILabel.alloc.initWithFrame(CGRectMake(0, 0, 16, 16))
-    value_label.text = config_var.value
-    value_label.textColor = UIColor.whiteColor
-    value_label.backgroundColor = UIColor.clearColor
+    cell.detailTextLabel.text = config_var.value
+    cell.detailTextLabel.textColor = 0x999999.uicolor
+    cell.detailTextLabel.backgroundColor = :clear.uicolor
 
-    cell.accessoryView = value_label
+    cell.selectionStyle = UITableViewCellSelectionStyleGray
 
     cell
   end
@@ -49,7 +48,6 @@ class ConfigController < UITableViewController
   end
 
   def tableView(tableView, didSelectRowAtIndexPath: indexPath)
-    puts @data[indexPath.row].url
   end
 end
 

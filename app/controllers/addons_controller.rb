@@ -4,7 +4,7 @@ class AddonsController < UITableViewController
 
   def init
     super
-    tab_bar_item = UITabBarItem.alloc.initWithTitle "addons", image: UIImage.imageNamed("addons.png"), tag: 3
+    tab_bar_item = UITabBarItem.alloc.initWithTitle "addons", image: "addons.png".uiimage, tag: 3
     self.tabBarItem = tab_bar_item
     @data = []
     self
@@ -16,8 +16,8 @@ class AddonsController < UITableViewController
       @data = addons
       view.reloadData
     end
-    view.separatorColor = UIColor.clearColor
-    view.backgroundColor = UIColor.colorWithPatternImage UIImage.imageNamed("back.png")
+    view.separatorColor = 0xcccccc.uicolor
+    view.backgroundColor = "back.png".uicolor
   end
 
   def tableView(tableView, cellForRowAtIndexPath: indexPath)
@@ -28,11 +28,15 @@ class AddonsController < UITableViewController
       UITableViewCell.alloc.initWithStyle(UITableViewCellStyleDefault, reuseIdentifier:@reuseIdentifier)
     end
     addon = @data[indexPath.row]
+    :x
+    :w
 
     cell.textLabel.text = addon.full_description
-    cell.textLabel.textColor = UIColor.whiteColor
-    cell.textLabel.backgroundColor = UIColor.clearColor
-    cell.contentView.backgroundColor = UIColor.clearColor
+    cell.textLabel.textColor = 0x555555.uicolor
+    cell.textLabel.backgroundColor = :clear.uicolor
+    cell.contentView.backgroundColor = :clear.uicolor
+
+    cell.selectionStyle = UITableViewCellSelectionStyleGray
 
     cell
   end

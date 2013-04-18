@@ -3,11 +3,9 @@ class Heroku
   HEROKU_API = "https://api.heroku.com"
 
   def login(username, password, &block)
-    raise StandardError unless username && password && block
     body = { username: username, password: password }
     BW::HTTP.post("#{HEROKU_API}/login", { headers: headers, payload: body }) do |response|
-        user_json = BW::JSON.parse response.body
-        block.call(user_json)
+      block.call(HerokuResponse.new(response)) if block
     end
   end
 
@@ -31,10 +29,23 @@ class Heroku
     authorized_call("/apps/#{application_name}/config_vars", &block)
   end
 
+  def restart_process(application_name, process_type, &block)
+    authorized_post("/apps/#{application_name}/ps/restart?type=#{process_type}", &block)
+  end
+
+  def restart(application_name, &block)
+    authorized_post("/apps/#{application_name}/ps/restart", &block)
+  end
+
   def authorized_call(path, &block)
     BW::HTTP.get("#{HEROKU_API}#{path}", { headers: authorization_headers }) do |response|
-      response_json = BW::JSON.parse response.body
-      block.call(response_json)
+      block.call(HerokuResponse.new(response)) if block
+    end
+  end
+
+  def authorized_post(path, &block)
+    BW::HTTP.post("#{HEROKU_API}#{path}", { headers: authorization_headers }) do |response|
+      block.call(HerokuResponse.new(response)) if block
     end
   end
 

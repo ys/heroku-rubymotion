@@ -1,8 +1,26 @@
 class Application
-  APP_PROPERTIES = [:id, :name, :create_status, :created_at,
-                    :stack, :requested_stack,
-                    :repo_migrate_status, :slug_size,
-                    :repo_size, :dynos, :workers, :processes]
+  APP_PROPERTIES = [:id,
+                    :buildpack_provided_description,
+                    :create_status,
+                    :created_at,
+                    :domain_name,
+                    :dynos,
+                    :git_url,
+                    :name,
+                    :owner_email,
+                    :owner_name,
+                    :processes,
+                    :released_at,
+                    :repo_migrate_status,
+                    :repo_size,
+                    :requested_stack,
+                    :slug_size,
+                    :slug_size,
+                    :stack,
+                    :tier,
+                    :updated_at,
+                    :web_url,
+                    :workers]
 
   APP_PROPERTIES.each do |field|
     attr_accessor field
@@ -19,20 +37,9 @@ class Application
   end
 
   def self.all(&block)
-    Heroku.new.applications do |applications_json|
-      apps = applications_json.map do |application_json|
-        app = new({ id:                  application_json["id"],
-              name:                application_json["name"],
-              create_status:       application_json["create_status"],
-              created_at:          application_json["created_at"],
-              stack:               application_json["stack"],
-              requested_stack:     application_json["requested_stack"],
-              repo_migrate_status: application_json["repo_migrate_status"],
-              slug_size:           application_json["slug_size"],
-              repo_size:           application_json["repo_size"],
-              dynos:               application_json["dynos"],
-              workers:             application_json["workers"]
-        })
+    Heroku.new.applications do |response|
+      apps = response.json.map do |application_json|
+        app = new(application_json)
         app.load_processes {}
         app
       end
@@ -42,16 +49,9 @@ class Application
 
   def load_processes(&block)
     unless @processes.any?
-      Heroku.new.processes(self.name) do |processes_json|
-        processes = processes_json.map do |process_json|
-          Process.new({
-            id:           process_json["id"],
-            command:      process_json["command"],
-            pretty_state: process_json["pretty_state"],
-            process:      process_json["process"],
-            size:         process_json["size"],
-            state:        process_json["state"],
-          })
+      Heroku.new.processes(self.name) do |response|
+        processes = response.json.map do |process_json|
+          Process.new(process_json)
         end
         @processes = processes
         @processes_loaded = true
@@ -64,8 +64,8 @@ class Application
 
   def load_addons(&block)
     unless @addons.any?
-      Heroku.new.addons(self.name) do |addons_json|
-        @addons = addons_json.map do |addon_json|
+      Heroku.new.addons(self.name) do |response|
+        @addons = response.json.map do |addon_json|
           Addon.new(addon_json)
         end
         @addons_loaded = true
@@ -78,9 +78,9 @@ class Application
 
   def load_config(&block)
     unless @config_vars.any?
-      Heroku.new.config(self.name) do |config_vars_json|
+      Heroku.new.config(self.name) do |response|
         @config_vars = []
-        config_vars_json.each_pair do |key, value|
+        response.json.each_pair do |key, value|
           @config_vars << ConfigVar.new(key, value)
         end
         @config_loaded = true
@@ -112,7 +112,7 @@ class Application
     _processes.each do |ps|
       processes[ps.process.split('.')[0]] += 1
     end
-    processes.map { |key, value| ProcessWithCount.new(key,value) }
+    processes.map { |key, value| ProcessWithCount.new(self.name, key, value) }
   end
 
   def _processes
@@ -126,4 +126,12 @@ class Application
   end
 end
 
-class ProcessWithCount < Struct.new(:type, :count); end
+class ProcessWithCount < Struct.new(:app_name, :type, :count)
+  def restart(&block)
+
+    Heroku.new.restart_process(app_name, type) do |result|
+      block.call
+    end
+  end
+
+end
