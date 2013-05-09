@@ -14,6 +14,8 @@ Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
   app.name = 'Origami'
   app.identifier = "io.yannick.origami"
+  app.version = "0.0.1"
+  app.short_version = "0.0.1"
   app.codesign_certificate = 'iPhone Developer: Yannick Schutz'
   app.provisioning_profile = '/Users/yannick/Documents/ios/origami.mobileprovision'
   app.icons = %w[logo-57 logo-72 logo-114 logo-144]
@@ -35,7 +37,6 @@ Motion::Project::App.setup do |app|
     app.testflight.api_token = '3a009a08d4a8d14db482e312c6794eb3_NjI5MzA3MjAxMi0wOS0xNSAwODoyMToxNy4xMDg2MzA'
     app.testflight.team_token = 'f8733c3f121e1d69be2f617439f69890_MjIxMjU4MjAxMy0wNS0wOCAyMDowOToxNi40Mjk1MjQ'
     app.testflight.notify = true # default is false
-    app.testflight.identify_testers = true # default is false
   end
 
 end
