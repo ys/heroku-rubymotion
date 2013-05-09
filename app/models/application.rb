@@ -61,12 +61,16 @@ class Application
   def load_processes(&block)
     unless @processes.any?
       Heroku.new.processes(self.name) do |response|
-        processes = response.json.map do |process_json|
-          Process.new(process_json)
+        if response.ok?
+          processes = response.json.map do |process_json|
+            Process.new(process_json)
+          end
+          @processes = processes
+          @processes_loaded = true
+          block.call processes
+        else
+          TempAlert.alert 'oops', false
         end
-        @processes = processes
-        @processes_loaded = true
-        block.call processes
       end
     else
       block.call @processes
@@ -76,11 +80,15 @@ class Application
   def load_addons(&block)
     unless @addons.any?
       Heroku.new.addons(self.name) do |response|
-        @addons = response.json.map do |addon_json|
-          Addon.new(addon_json)
+        if response.ok?
+          @addons = response.json.map do |addon_json|
+            Addon.new(addon_json)
+          end
+          @addons_loaded = true
+          block.call @addons
+        else
+          TempAlert.alert 'oops', false
         end
-        @addons_loaded = true
-        block.call @addons
       end
     else
       block.call @addons
@@ -90,12 +98,16 @@ class Application
   def load_config(&block)
     unless @config_vars.any?
       Heroku.new.config(self.name) do |response|
-        @config_vars = []
-        response.json.each_pair do |key, value|
-          @config_vars << ConfigVar.new(key, value)
+        if response.ok?
+          @config_vars = []
+          response.json.each_pair do |key, value|
+            @config_vars << ConfigVar.new(key, value)
+          end
+          @config_loaded = true
+          block.call @config_vars
+        else
+          TempAlert.alert 'oops', false
         end
-        @config_loaded = true
-        block.call @config_vars
       end
     else
       block.call @config_vars
