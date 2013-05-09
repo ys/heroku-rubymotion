@@ -1,0 +1,177 @@
+<?xml version='1.0'?>
+<signatures version='1.0'>
+<function variadic='true' name='CLSLog'>
+<arg type='@' printf_format='true' declared_type='NSString*' name='format'/>
+<retval type='v' declared_type='void'/>
+</function>
+<function variadic='true' name='CLSNSLog'>
+<arg type='@' printf_format='true' declared_type='NSString*' name='format'/>
+<retval type='v' declared_type='void'/>
+</function>
+<class name='Crashlytics'>
+<method selector='apiKey'>
+<retval type='@' declared_type='NSString*'/>
+</method>
+<method selector='crash'>
+<retval type='v' declared_type='void'/>
+</method>
+<method selector='debugMode'>
+<retval type='B' declared_type='BOOL'/>
+</method>
+<method selector='delegate'>
+<retval type='@' declared_type='NSObject*'/>
+</method>
+<method class_method='true' selector='setBoolValue:forKey:'>
+<arg type='B' declared_type='BOOL' index='0' name='value'/>
+<arg type='@' declared_type='NSString*' index='1' name='key'/>
+<retval type='v' declared_type='void'/>
+</method>
+<method selector='setBoolValue:forKey:'>
+<arg type='B' declared_type='BOOL' index='0' name='value'/>
+<arg type='@' declared_type='NSString*' index='1' name='key'/>
+<retval type='v' declared_type='void'/>
+</method>
+<method selector='setDebugMode:'>
+<arg type='B' declared_type='BOOL' index='0' name='debugMode'/>
+<retval type='v' declared_type='void'/>
+</method>
+<method selector='setDelegate:'>
+<arg type='@' declared_type='NSObject*' index='0' name='delegate'/>
+<retval type='v' declared_type='void'/>
+</method>
+<method class_method='true' selector='setFloatValue:forKey:'>
+<arg type='f' declared_type='float' index='0' name='value'/>
+<arg type='@' declared_type='NSString*' index='1' name='key'/>
+<retval type='v' declared_type='void'/>
+</method>
+<method selector='setFloatValue:forKey:'>
+<arg type='f' declared_type='float' index='0' name='value'/>
+<arg type='@' declared_type='NSString*' index='1' name='key'/>
+<retval type='v' declared_type='void'/>
+</method>
+<method class_method='true' selector='setIntValue:forKey:'>
+<arg type='i' declared_type='int' index='0' name='value'/>
+<arg type='@' declared_type='NSString*' index='1' name='key'/>
+<retval type='v' declared_type='void'/>
+</method>
+<method selector='setIntValue:forKey:'>
+<arg type='i' declared_type='int' index='0' name='value'/>
+<arg type='@' declared_type='NSString*' index='1' name='key'/>
+<retval type='v' declared_type='void'/>
+</method>
+<method class_method='true' selector='setObjectValue:forKey:'>
+<arg type='@' declared_type='id' index='0' name='value'/>
+<arg type='@' declared_type='NSString*' index='1' name='key'/>
+<retval type='v' declared_type='void'/>
+</method>
+<method selector='setObjectValue:forKey:'>
+<arg type='@' declared_type='id' index='0' name='value'/>
+<arg type='@' declared_type='NSString*' index='1' name='key'/>
+<retval type='v' declared_type='void'/>
+</method>
+<method class_method='true' selector='setUserEmail:'>
+<arg type='@' declared_type='NSString*' index='0' name='email'/>
+<retval type='v' declared_type='void'/>
+</method>
+<method selector='setUserEmail:'>
+<arg type='@' declared_type='NSString*' index='0' name='email'/>
+<retval type='v' declared_type='void'/>
+</method>
+<method class_method='true' selector='setUserIdentifier:'>
+<arg type='@' declared_type='NSString*' index='0' name='identifier'/>
+<retval type='v' declared_type='void'/>
+</method>
+<method selector='setUserIdentifier:'>
+<arg type='@' declared_type='NSString*' index='0' name='identifier'/>
+<retval type='v' declared_type='void'/>
+</method>
+<method class_method='true' selector='setUserName:'>
+<arg type='@' declared_type='NSString*' index='0' name='name'/>
+<retval type='v' declared_type='void'/>
+</method>
+<method selector='setUserName:'>
+<arg type='@' declared_type='NSString*' index='0' name='name'/>
+<retval type='v' declared_type='void'/>
+</method>
+<method class_method='true' selector='sharedInstance'>
+<retval type='@' declared_type='Crashlytics*'/>
+</method>
+<method class_method='true' selector='startWithAPIKey:'>
+<arg type='@' declared_type='NSString*' index='0' name='apiKey'/>
+<retval type='@' declared_type='Crashlytics*'/>
+</method>
+<method class_method='true' selector='startWithAPIKey:afterDelay:'>
+<arg type='@' declared_type='NSString*' index='0' name='apiKey'/>
+<arg type='d' declared_type='NSTimeInterval' index='1' name='delay'/>
+<retval type='@' declared_type='Crashlytics*'/>
+</method>
+<method class_method='true' selector='startWithAPIKey:delegate:'>
+<arg type='@' declared_type='NSString*' index='0' name='apiKey'/>
+<arg type='@' declared_type='NSObject*' index='1' name='delegate'/>
+<retval type='@' declared_type='Crashlytics*'/>
+</method>
+<method class_method='true' selector='startWithAPIKey:delegate:afterDelay:'>
+<arg type='@' declared_type='NSString*' index='0' name='apiKey'/>
+<arg type='@' declared_type='NSObject*' index='1' name='delegate'/>
+<arg type='d' declared_type='NSTimeInterval' index='2' name='delay'/>
+<retval type='@' declared_type='Crashlytics*'/>
+</method>
+<method selector='version'>
+<retval type='@' declared_type='NSString*'/>
+</method>
+</class>
+<class name='NSObject'>
+<method selector='bundleShortVersionString'>
+<retval type='@' declared_type='NSString*'/>
+</method>
+<method selector='bundleVersion'>
+<retval type='@' declared_type='NSString*'/>
+</method>
+<method selector='crashedOnDate'>
+<retval type='@' declared_type='NSDate*'/>
+</method>
+<method selector='crashlytics:didDetectCrashDuringPreviousExecution:'>
+<arg type='@' declared_type='Crashlytics*' index='0' name='crashlytics'/>
+<arg type='@' declared_type='id' index='1' name='crash'/>
+<retval type='v' declared_type='void'/>
+</method>
+<method selector='crashlyticsDidDetectCrashDuringPreviousExecution:'>
+<arg type='@' declared_type='Crashlytics*' index='0' name='crashlytics'/>
+<retval type='v' declared_type='void'/>
+</method>
+<method selector='customKeys'>
+<retval type='@' declared_type='NSDictionary*'/>
+</method>
+<method selector='identifier'>
+<retval type='@' declared_type='NSString*'/>
+</method>
+</class>
+<informal_protocol name='CLSCrashReport'>
+<method type='@8@0:4' selector='bundleShortVersionString'>
+<retval type='@' declared_type='NSString*'/>
+</method>
+<method type='@8@0:4' selector='bundleVersion'>
+<retval type='@' declared_type='NSString*'/>
+</method>
+<method type='@8@0:4' selector='crashedOnDate'>
+<retval type='@' declared_type='NSDate*'/>
+</method>
+<method type='@8@0:4' selector='customKeys'>
+<retval type='@' declared_type='NSDictionary*'/>
+</method>
+<method type='@8@0:4' selector='identifier'>
+<retval type='@' declared_type='NSString*'/>
+</method>
+</informal_protocol>
+<informal_protocol name='CrashlyticsDelegate'>
+<method type='v16@0:4@8@12' selector='crashlytics:didDetectCrashDuringPreviousExecution:'>
+<arg type='@' declared_type='Crashlytics*' index='0' name='crashlytics'/>
+<arg type='@' declared_type='id' index='1' name='crash'/>
+<retval type='v' declared_type='void'/>
+</method>
+<method type='v12@0:4@8' selector='crashlyticsDidDetectCrashDuringPreviousExecution:'>
+<arg type='@' declared_type='Crashlytics*' index='0' name='crashlytics'/>
+<retval type='v' declared_type='void'/>
+</method>
+</informal_protocol>
+</signatures>

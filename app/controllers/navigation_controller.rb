@@ -5,11 +5,14 @@ class NavigationController < UITableViewController
   def init
     super
     @apps = []
+    self
+  end
+
+  def viewWillAppear(animated)
     Application.all do |apps|
       @apps = apps
       self.view.reloadData
     end
-    self
   end
 
   def viewDidLoad

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 $:.unshift("/Library/RubyMotion/lib")
-require 'motion/project'
+require 'motion/project'#/template/ios'
 require 'bundler'
 require 'bubble-wrap'
 require 'bubble-wrap/reactor'
@@ -37,6 +37,13 @@ Motion::Project::App.setup do |app|
     'vendor/Pods/NewRelicAgent/NewRelic_iOS_Agent_1.328/NewRelicAgent.framework',
     :static,
     :products => ['NewRelicAgent'],
+    :headers_dir => 'Headers'
+  )
+
+  app.vendor_project(
+    'vendor/Crashlytics.framework',
+    :static,
+    :products => ['Crashlytics'],
     :headers_dir => 'Headers'
   )
 

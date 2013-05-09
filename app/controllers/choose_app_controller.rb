@@ -5,6 +5,11 @@ class ChooseAppController < UIViewController
     add_show_menu_button
     self.view.addSubview @app_view
   end
+
+  def viewWillAppear(animated)
+    self.viewDeckController.openLeftViewAnimated true
+  end
+
   def add_show_menu_button
     backButton = UIButton.alloc.initWithFrame [[0, 0], [26, 26]]
     backButton.setImage UIImage.imageNamed("burger.png"), forState: UIControlStateNormal
@@ -29,7 +34,7 @@ class ChooseAppController < UIViewController
 
   def logout
     User.destroy
-    BaseController.alloc.init
+    self.parentViewController.parentViewController.parentViewController.switch_to_login
   end
 
 end

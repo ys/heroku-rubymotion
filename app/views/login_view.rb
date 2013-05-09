@@ -11,8 +11,7 @@ class LoginView < UIView
       image_view.contentMode = UIViewContentModeScaleToFill
       addSubview image_view
 
-      @user_field     = UITextField.alloc.initWithFrame([[10, 140], [300, 50]])
-
+      @user_field = UITextField.alloc.initWithFrame([[10, 140], [300, 50]])
       @user_field.placeholder = "Email"
       @user_field.backgroundColor = :white.uicolor
       @user_field.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter
@@ -56,6 +55,11 @@ class LoginView < UIView
 
   def password_value
     @password_field.text
+  end
+
+  def reset_fields
+    @user_field.text = ""
+    @password_field.text = ""
   end
 
   def textFieldShouldReturn(text_field)

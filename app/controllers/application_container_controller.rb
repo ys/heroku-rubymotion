@@ -33,6 +33,6 @@ class ApplicationContainerController < UITabBarController
 
   def logout
     User.destroy
-    BaseController.alloc.init
+    self.parentViewController.parentViewController.parentViewController.switch_to_login
   end
 end
