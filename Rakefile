@@ -14,8 +14,8 @@ Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
   app.name = 'Origami'
   app.identifier = "io.yannick.origami"
-  app.version = "0.0.1"
-  app.short_version = "0.0.1"
+  app.version = "0.4"
+  app.short_version = "0.4"
   app.codesign_certificate = 'iPhone Developer: Yannick Schutz'
   app.provisioning_profile = '/Users/yannick/Documents/ios/origami.mobileprovision'
   app.icons = %w[logo-57 logo-72 logo-114 logo-144]
