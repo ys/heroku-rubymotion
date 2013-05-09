@@ -4,6 +4,7 @@ class ApplicationController < UIViewController
   def init
     super
     tab_bar_item = UITabBarItem.alloc.initWithTitle "app", image:"app.png".uiimage, tag: 1
+    tab_bar_item.setFinishedSelectedImage "app.png".uiimage,  withFinishedUnselectedImage: "app_white.png".uiimage
     self.tabBarItem = tab_bar_item
     self
   end
@@ -21,7 +22,7 @@ class ApplicationController < UIViewController
     unless @app.nil?
       add_app_view
     end
-    self.view.backgroundColor = "back.png".uicolor
+    self.view.backgroundColor = :white.uicolor
   end
 
   def add_show_menu_button
@@ -38,5 +39,15 @@ class ApplicationController < UIViewController
     @app_view = ApplicationView.new(@app, self.view)
     @app_view.target = self
     self.view.addSubview @app_view
+  end
+
+  def restart_app
+    @app.restart do |response|
+      if response.ok?
+        TempAlert.alert "Restarted", true
+      else
+        TempAlert.alert "oops", false
+      end
+    end
   end
 end

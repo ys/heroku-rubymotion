@@ -5,6 +5,7 @@ class ProcessesController < UITableViewController
   def init
     super
     tab_bar_item = UITabBarItem.alloc.initWithTitle "PS", image:"ps.png".uiimage, tag: 2
+    tab_bar_item.setFinishedSelectedImage "ps.png".uiimage,  withFinishedUnselectedImage: "ps_white.png".uiimage
     self.tabBarItem = tab_bar_item
     self
   end
@@ -13,8 +14,8 @@ class ProcessesController < UITableViewController
   def viewDidLoad
     super
     @data = @app.process_types_with_count
-    self.view.separatorColor = 0xcccccc.uicolor
-    self.view.backgroundColor = "back.png".uicolor
+    self.view.separatorColor = 0xD3C7B9.uicolor
+    self.view.backgroundColor = :white.uicolor
   end
 
   def tableView(tableView, cellForRowAtIndexPath: indexPath)
@@ -25,6 +26,9 @@ class ProcessesController < UITableViewController
       ProcessView.new @data[indexPath.row]
     end
 
+    bg_view = UIView.alloc.init
+    bg_view.setBackgroundColor 0xD3C7B9.uicolor
+    cell.setSelectedBackgroundView bg_view
     cell
   end
 

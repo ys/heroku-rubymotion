@@ -7,7 +7,7 @@ class LoginController < UIViewController
     self.title = "Login with Heroku"
     @login_view = LoginView.new(view)
     @login_view.target = self
-    view.backgroundColor = "back.png".uicolor
+    view.backgroundColor = 0xD3C7B9.uicolor
     view.addSubview @login_view
   end
 
@@ -22,7 +22,7 @@ class LoginController < UIViewController
         user.save
         @delegate.init_deck
       else
-        App.alert "Login failed"
+        TempAlert.alert "Login failed", false
       end
     end
     Heroku.new.login(@login_view.login_value, @login_view.password_value, &@after_post)

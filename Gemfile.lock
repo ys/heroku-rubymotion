@@ -37,6 +37,7 @@ GEM
     json (1.7.7)
     motion-cocoapods (1.3.0.rc1)
       cocoapods (>= 0.17.0)
+    motion-testflight (1.4)
     multi_json (1.7.2)
     multipart-post (1.2.0)
     netrc (0.7.7)
@@ -61,5 +62,6 @@ DEPENDENCIES
   bubble-wrap
   cocoapods
   motion-cocoapods (= 1.3.0.rc1)
+  motion-testflight
   rake
   sugarcube

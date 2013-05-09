@@ -14,6 +14,7 @@ class Application
                     :repo_migrate_status,
                     :repo_size,
                     :requested_stack,
+                    :region,
                     :slug_size,
                     :slug_size,
                     :stack,
@@ -38,13 +39,22 @@ class Application
 
   def self.all(&block)
     Heroku.new.applications do |response|
-      apps = response.json.map do |application_json|
-        app = new(application_json)
-        app.load_processes {}
-        app
+      if response.ok?
+        apps = response.json.map do |application_json|
+          app = new(application_json)
+          app.load_processes {}
+          app
+        end
+        block.call apps
+      else
+        TempAlert.alert "oops", false
       end
-      block.call apps
     end
+  end
+
+  def restart(&block)
+    Heroku.new.restart(self, &block)
+
   end
 
   def load_processes(&block)

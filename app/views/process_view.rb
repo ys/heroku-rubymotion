@@ -6,25 +6,23 @@ class ProcessView < UITableViewCell
     initWithStyle(UITableViewCellStyleDefault, reuseIdentifier:"PROCESS").tap do
       @process = ps
       textLabel.text = @process.type
-      textLabel.textColor = 0x555555.uicolor
+      textLabel.textColor = 0x20404B.uicolor
       textLabel.backgroundColor = :clear.uicolor
       self.contentView.backgroundColor = :clear.uicolor
 
       set_count_view
 
-      self.contentView.on_tap do
-        set_count_view
-        @add_button.removeFromSuperview
-        @remove_button.removeFromSuperview
-        @ps_count.removeFromSuperview
-      end
+      #on_swipe :left do |gesture|
+      #  set_restart_view
+      #end
 
-      on_swipe :left do |gesture|
-        set_restart_view
-      end
-
-      on_swipe :right do |gesture|
-        set_process_count_change_view
+      #on_swipe :right do |gesture|
+      #  set_process_count_change_view
+      #end
+      on_tap do |gesture|
+        UIActionSheet.alert "Restart #{@process.type} process?", buttons: ['Cancel', 'Restart Process'],
+          cancel: proc { },
+          destructive: proc { restart_app }
       end
     end
   end
@@ -32,21 +30,29 @@ class ProcessView < UITableViewCell
   def set_count_view
     @count_label = UILabel.alloc.initWithFrame(CGRectMake(0, 0, 16, 16))
     @count_label.text = @process.count.to_s
-    @count_label.textColor = 0x999999.uicolor
+    @count_label.textColor = 0x4C6673.uicolor
     @count_label.backgroundColor = :clear.uicolor
 
     selectionStyle = UITableViewCellSelectionStyleGray
     self.accessoryView = @count_label
   end
 
+  def restart_app
+    @process.restart do |response|
+      if response.ok?
+        set_count_view
+        TempAlert.alert "Restarted", true
+      else
+        TempAlert.alert "oops", false
+      end
+    end
+  end
+
   def set_restart_view
     restart_button = UIButton.alloc.initWithFrame [[0, 0], [26, 26]]
     restart_button.setImage UIImage.imageNamed("restart.png"), forState: UIControlStateNormal
     restart_button.on(:touch) do |event|
-      @process.restart do |response|
-        set_count_view
-        App.alert "Restarted"
-      end
+      restart_app
     end
     self.accessoryView = restart_button
   end

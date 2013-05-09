@@ -1,4 +1,4 @@
-class NavigationController < UIViewController
+class NavigationController < UITableViewController
 
   attr_accessor :delegate
 
@@ -7,19 +7,27 @@ class NavigationController < UIViewController
     @apps = []
     Application.all do |apps|
       @apps = apps
-      @table.reloadData
+      self.view.reloadData
     end
     self
   end
 
   def viewDidLoad
     super
-    @table = UITableView.alloc.initWithFrame(self.view.bounds)
-    self.view.addSubview @table
-    @table.dataSource = self
-    @table.delegate = self
-    @table.separatorColor = 0xcccccc.uicolor
-    @table.backgroundColor = :white.uicolor
+    self.view.separatorColor = 0xE79E8F.uicolor
+    self.view.backgroundColor = :white.uicolor
+    @refreshControl = UIRefreshControl.alloc.init
+    @refreshControl.tintColor = 0xE79E8F.uicolor
+    @refreshControl.addTarget self, action: :reload_apps, forControlEvents:UIControlEventValueChanged
+    self.refreshControl = @refreshControl
+  end
+
+  def reload_apps
+    Application.all do |apps|
+      @apps = apps
+      self.view.reloadData
+      @refreshControl.endRefreshing
+    end
   end
 
   def tableView(tableView, cellForRowAtIndexPath: indexPath)
@@ -32,11 +40,12 @@ class NavigationController < UIViewController
     # put your data in the cell
     cell.text = @apps[indexPath.row].name
     cell.textLabel.backgroundColor = :clear.uicolor
-    cell.textLabel.color = :gray.uicolor
-    cell.imageView.setImage "app_icon.png".uiimage
+    cell.textLabel.color = 0xE79E8F.uicolor
+    #cell.imageView.setImage "app_icon.png".uiimage
     cell.contentView.backgroundColor = :clear.uicolor
     selectedBackgroundView = UIView.alloc.initWithFrame(cell.frame)
-    selectedBackgroundView.backgroundColor = 0xcccccc.uicolor
+    selectedBackgroundView.backgroundColor = 0xE79E8F.uicolor
+    cell.textLabel.highlightedTextColor = 0xE17666.uicolor
     cell.selectedBackgroundView = selectedBackgroundView
     cell
   end

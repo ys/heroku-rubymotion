@@ -5,6 +5,7 @@ class ConfigController < UITableViewController
   def init
     super
     tab_bar_item = UITabBarItem.alloc.initWithTitle "config", image:"config.png".uiimage, tag: 4
+    tab_bar_item.setFinishedSelectedImage "config.png".uiimage,  withFinishedUnselectedImage: "config_white.png".uiimage
     self.tabBarItem = tab_bar_item
     @data = []
     self
@@ -16,8 +17,8 @@ class ConfigController < UITableViewController
       @data = config
       view.reloadData
     end
-    view.separatorColor = 0xcccccc.uicolor
-    view.backgroundColor = "back.png".uicolor
+    view.separatorColor = 0xD3C7B9.uicolor
+    view.backgroundColor = :white.uicolor
   end
 
   def tableView(tableView, cellForRowAtIndexPath: indexPath)
@@ -30,15 +31,17 @@ class ConfigController < UITableViewController
     config_var = @data[indexPath.row]
 
     cell.textLabel.text = config_var.key
-    cell.textLabel.textColor = 0x555555.uicolor
+    cell.textLabel.textColor = 0x20404B.uicolor
     cell.textLabel.backgroundColor = :clear.uicolor
     cell.contentView.backgroundColor = :clear.uicolor
 
     cell.detailTextLabel.text = config_var.value
-    cell.detailTextLabel.textColor = 0x999999.uicolor
+    cell.detailTextLabel.textColor = 0x4C6673.uicolor
     cell.detailTextLabel.backgroundColor = :clear.uicolor
 
-    cell.selectionStyle = UITableViewCellSelectionStyleGray
+    bg_view = UIView.alloc.init
+    bg_view.setBackgroundColor 0xD3C7B9.uicolor
+    cell.setSelectedBackgroundView bg_view
 
     cell
   end

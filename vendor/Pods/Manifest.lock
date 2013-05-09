@@ -1,10 +1,13 @@
 PODS:
+  - MBAlertView (1.0.0)
   - ViewDeck (2.2.7)
 
 DEPENDENCIES:
+  - MBAlertView
   - ViewDeck
 
 SPEC CHECKSUMS:
+  MBAlertView: 678e93f71506625e59715aefecee093128a96fc6
   ViewDeck: 216d9637e22c7c2a2e3fe98b2d04a95824d7adeb
 
-COCOAPODS: 0.17.1
+COCOAPODS: 0.18.1

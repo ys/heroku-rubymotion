@@ -14,4 +14,5 @@ class ChooseAppController < UIViewController
     self.navigationItem.hidesBackButton = true
     self.navigationItem.leftBarButtonItem = barBackItem
   end
+
 end

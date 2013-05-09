@@ -6,7 +6,7 @@ class DeckController < IIViewDeckController
     application_controller = ChooseAppController.alloc.init
     self.panningView = application_controller.view
     nav_controller ||= UINavigationController.alloc.initWithRootViewController(application_controller)
-    nav_controller.navigationBar.tintColor = 0x555555.uicolor
+    nav_controller.navigationBar.tintColor = 0xE17666.uicolor
     left_controller = NavigationController.alloc.init
     self.leftController = left_controller
     self.centerController = nav_controller
