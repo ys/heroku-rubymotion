@@ -1,7 +1,8 @@
 ALWAYS_SEARCH_USER_PATHS = YES
+FRAMEWORK_SEARCH_PATHS = "$(PODS_ROOT)/NewRelicAgent/NewRelic_iOS_Agent_1.328"
 HEADER_SEARCH_PATHS = ${PODS_HEADERS_SEARCH_PATHS}
-OTHER_LDFLAGS = -ObjC -framework QuartzCore
-PODS_BUILD_HEADERS_SEARCH_PATHS = "${PODS_ROOT}/BuildHeaders" "${PODS_ROOT}/BuildHeaders/MBAlertView" "${PODS_ROOT}/BuildHeaders/ViewDeck"
+OTHER_LDFLAGS = -ObjC -lz -framework CoreTelephony -framework NewRelicAgent -framework QuartzCore -framework SystemConfiguration
+PODS_BUILD_HEADERS_SEARCH_PATHS = "${PODS_ROOT}/BuildHeaders" "${PODS_ROOT}/BuildHeaders/MBAlertView" "${PODS_ROOT}/BuildHeaders/NewRelicAgent" "${PODS_ROOT}/BuildHeaders/ViewDeck"
 PODS_HEADERS_SEARCH_PATHS = ${PODS_PUBLIC_HEADERS_SEARCH_PATHS}
-PODS_PUBLIC_HEADERS_SEARCH_PATHS = "${PODS_ROOT}/Headers" "${PODS_ROOT}/Headers/MBAlertView" "${PODS_ROOT}/Headers/ViewDeck"
+PODS_PUBLIC_HEADERS_SEARCH_PATHS = "${PODS_ROOT}/Headers" "${PODS_ROOT}/Headers/MBAlertView" "${PODS_ROOT}/Headers/NewRelicAgent" "${PODS_ROOT}/Headers/ViewDeck"
 PODS_ROOT = ${SRCROOT}/Pods

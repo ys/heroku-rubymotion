@@ -1,13 +1,16 @@
 PODS:
   - MBAlertView (1.0.0)
+  - NewRelicAgent (1.328.0)
   - ViewDeck (2.2.7)
 
 DEPENDENCIES:
   - MBAlertView
+  - NewRelicAgent
   - ViewDeck
 
 SPEC CHECKSUMS:
   MBAlertView: 678e93f71506625e59715aefecee093128a96fc6
+  NewRelicAgent: a60f8bceb92ef17ad5728cb44ead0c3ef1c9e984
   ViewDeck: 216d9637e22c7c2a2e3fe98b2d04a95824d7adeb
 
 COCOAPODS: 0.18.1

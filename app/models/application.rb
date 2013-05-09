@@ -53,8 +53,9 @@ class Application
   end
 
   def restart(&block)
-    Heroku.new.restart(self, &block)
-
+    Heroku.new.restart(self.name) do |response|
+      block.call response
+    end
   end
 
   def load_processes(&block)
@@ -139,8 +140,8 @@ end
 class ProcessWithCount < Struct.new(:app_name, :type, :count)
   def restart(&block)
 
-    Heroku.new.restart_process(app_name, type) do |result|
-      block.call
+    Heroku.new.restart_process(app_name, type) do |response|
+      block.call response
     end
   end
 

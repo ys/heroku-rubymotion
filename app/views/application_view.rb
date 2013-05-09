@@ -35,7 +35,6 @@ class ApplicationView < UIView
       self.addSubview @other_dynos_count_label
 
       @restart_button = UIButton.buttonWithType UIButtonTypeRoundedRect
-      @restart_button.layer.cornerRadius= 100.0
       @restart_button.setTitleColor 0x20404B.uicolor, forState: UIControlStateNormal
       @restart_button.setTitleColor :white.uicolor, forState: UIControlStateHighlighted
       @restart_button.setBackgroundImage "light_pink.png".uiimage, forState: UIControlStateNormal

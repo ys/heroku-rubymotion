@@ -13,6 +13,23 @@ class ChooseAppController < UIViewController
     barBackItem = UIBarButtonItem.alloc.initWithCustomView backButton
     self.navigationItem.hidesBackButton = true
     self.navigationItem.leftBarButtonItem = barBackItem
+    settingsButton = UIButton.alloc.initWithFrame [[0, 0], [26, 26]]
+    settingsButton.setImage UIImage.imageNamed("settings.png"), forState: UIControlStateNormal
+    settingsButton.setShowsTouchWhenHighlighted false
+    settingsButton.addTarget self, action: "show_settings", forControlEvents: UIControlEventTouchDown
+    settingsItem = UIBarButtonItem.alloc.initWithCustomView settingsButton
+    self.navigationItem.rightBarButtonItem = settingsItem
+  end
+
+  def show_settings
+    UIActionSheet.alert "", buttons: ['Cancel', 'Logout'],
+      cancel: proc { },
+      destructive: proc { logout }
+  end
+
+  def logout
+    User.destroy
+    BaseController.alloc.init
   end
 
 end

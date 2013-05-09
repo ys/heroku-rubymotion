@@ -58,10 +58,6 @@ class NavigationController < UITableViewController
     switch_to_app(indexPath)
   end
 
-  def tableView(tableView, titleForHeaderInSection:section)
-    "Applications"
-  end
-
   def switch_to_app(indexPath)
     self.viewDeckController.closeLeftViewBouncing -> (controller) do
       app = @apps[indexPath.row]

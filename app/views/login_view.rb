@@ -4,28 +4,49 @@ class LoginView < UIView
 
   def initialize(parent_view)
     initWithFrame(parent_view.bounds).tap do
+      self.backgroundColor = 0xD3C7B9.uicolor
 
-      @user_field     = UITextField.alloc.initWithFrame([[60, 120], [200, 40]])
+      image_view = UIImageView.alloc.initWithFrame([[10, 40],[300, 67]])
+      image_view.image = "logo.png".uiimage
+      image_view.contentMode = UIViewContentModeScaleToFill
+      addSubview image_view
+
+      @user_field     = UITextField.alloc.initWithFrame([[10, 140], [300, 50]])
+
       @user_field.placeholder = "Email"
-      @user_field.setBorderStyle UITextBorderStyleRoundedRect
+      @user_field.backgroundColor = :white.uicolor
+      @user_field.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter
+      paddingView = UIView.alloc.initWithFrame [[0, 0], [10, 50]]
+      @user_field.leftView = paddingView;
+      @user_field.leftViewMode = UITextFieldViewModeAlways;
+      @user_field.delegate = self
       addSubview(@user_field)
 
-      @password_field = UITextField.alloc.initWithFrame([[60, 170], [200, 40]])
+      @password_field = UITextField.alloc.initWithFrame([[10, 200], [300, 50]])
+      @password_field.backgroundColor = :white.uicolor
       @password_field.placeholder = "Password"
       @password_field.secureTextEntry = true
-      @password_field.setBorderStyle UITextBorderStyleRoundedRect
+      @password_field.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter
+      paddingView = UIView.alloc.initWithFrame [[0, 0], [10, 50]]
+      @password_field.leftView = paddingView;
+      @password_field.leftViewMode = UITextFieldViewModeAlways;
+      @password_field.delegate = self
       addSubview(@password_field)
 
-      @login_button = UIButton.buttonWithType(UIButtonTypeRoundedRect)
-      @login_button.setTitle("Login with Heroku", forState: UIControlStateNormal)
-      @login_button.frame = CGRectMake(60, 220, 200, 40);
+      login_button = UIButton.buttonWithType(UIButtonTypeRoundedRect)
+      login_button
+      login_button.setTitle("Login with Heroku", forState: UIControlStateNormal)
+      login_button.setTitleColor 0x20404B.uicolor, forState: UIControlStateNormal
+      login_button.setTitleColor :white.uicolor, forState: UIControlStateHighlighted
+      login_button.setBackgroundImage "light_pink.png".uiimage, forState: UIControlStateNormal
+      login_button.setBackgroundImage "navbar.png".uiimage, forState: UIControlStateHighlighted
+      login_button.frame = [[10, 260], [300, 50]]
 
-      # connect an action method for login_with_github button
-      @login_button.addTarget(target,
+      login_button.addTarget(target,
                               action: "login_with_heroku:",
                               forControlEvents: UIControlEventTouchUpInside)
 
-      addSubview(@login_button)
+      addSubview(login_button)
     end
   end
 
@@ -36,4 +57,9 @@ class LoginView < UIView
   def password_value
     @password_field.text
   end
+
+  def textFieldShouldReturn(text_field)
+    text_field.resignFirstResponder
+  end
+
 end

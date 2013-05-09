@@ -30,7 +30,15 @@ Motion::Project::App.setup do |app|
   app.pods do
     pod 'ViewDeck'
     pod 'MBAlertView'
+    pod 'NewRelicAgent'
   end
+
+  app.vendor_project(
+    'vendor/Pods/NewRelicAgent/NewRelic_iOS_Agent_1.328/NewRelicAgent.framework',
+    :static,
+    :products => ['NewRelicAgent'],
+    :headers_dir => 'Headers'
+  )
 
   app.testflight do
     app.testflight.sdk = 'vendor/TestFlightSDK'

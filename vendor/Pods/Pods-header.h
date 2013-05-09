@@ -2,4 +2,5 @@
 #define __COCOA_PODS
 
 #define __POD_MBAlertView
+#define __POD_NewRelicAgent
 #define __POD_ViewDeck
