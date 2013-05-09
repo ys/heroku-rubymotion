@@ -40,17 +40,11 @@ Motion::Project::App.setup do |app|
     :headers_dir => 'Headers'
   )
 
-  app.vendor_project(
-    'vendor/Crashlytics.framework',
-    :static,
-    :products => ['Crashlytics'],
-    :headers_dir => 'Headers'
-  )
-
   app.testflight do
     app.testflight.sdk = 'vendor/TestFlightSDK'
-    app.testflight.api_token = '3a009a08d4a8d14db482e312c6794eb3_NjI5MzA3MjAxMi0wOS0xNSAwODoyMToxNy4xMDg2MzA'
+    app.testflight.api_token  = '3a009a08d4a8d14db482e312c6794eb3_NjI5MzA3MjAxMi0wOS0xNSAwODoyMToxNy4xMDg2MzA'
     app.testflight.team_token = 'f8733c3f121e1d69be2f617439f69890_MjIxMjU4MjAxMy0wNS0wOCAyMDowOToxNi40Mjk1MjQ'
+    app.testflight.app_token  = 'a6c69d07-8f0c-4d62-8314-fd87edf36358'
     app.testflight.notify = true # default is false
   end
 
