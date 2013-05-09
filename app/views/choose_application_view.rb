@@ -10,7 +10,7 @@ class ChooseApplicationView < UIView
       image_view.image = "logo.png".uiimage
       image_view.contentMode = UIViewContentModeScaleToFill
       self.addSubview image_view
-      image_view = UIImageView.alloc.initWithFrame([[10, 200],[300, 70]])
+      image_view = UIImageView.alloc.initWithFrame([[10, 200],[300, 75]])
       image_view.image = "choose_an_app.png".uiimage
       image_view.contentMode = UIViewContentModeScaleToFill
       self.addSubview image_view

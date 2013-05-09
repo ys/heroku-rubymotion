@@ -39,7 +39,7 @@ class LoginView < UIView
       login_button.setTitleColor :white.uicolor, forState: UIControlStateHighlighted
       login_button.setBackgroundImage "light_pink.png".uiimage, forState: UIControlStateNormal
       login_button.setBackgroundImage "navbar.png".uiimage, forState: UIControlStateHighlighted
-      login_button.frame = [[10, 260], [300, 50]]
+      login_button.frame = [[10, 260], [300, 75]]
 
       login_button.addTarget(target,
                               action: "login_with_heroku:",
