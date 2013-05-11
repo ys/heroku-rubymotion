@@ -26,7 +26,7 @@ class Process
   end
 
   def restart(&block)
-    Heroku.new.restart_process(self.app_name, self.type) do |response|
+    Heroku.instance.restart_process(self.app_name, self.type) do |response|
       block.call response
     end
   end

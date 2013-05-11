@@ -1,0 +1,27 @@
+exit
+controller
+subviews.first.frame
+subviews.first.frame = [[0,0],[320, 480]]
+exit
+frame
+frame.subviews
+subviews
+subviews.first.frame
+exit
+exit
+exit
+exit
+exit
+subviews
+subviews.first.frame
+exit
+exit
+exit
+exit
+exit
+Crashlytics.sharedInstance.crash
+exit
+frame
+childviews
+subviews
+exit

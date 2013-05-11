@@ -38,7 +38,7 @@ class Application
   end
 
   def self.all(&block)
-    Heroku.new.applications do |response|
+    Heroku.instance.applications do |response|
       if response.ok?
         apps = response.json.map do |application_json|
           app = new(application_json)
@@ -53,14 +53,14 @@ class Application
   end
 
   def restart(&block)
-    Heroku.new.restart(self.name) do |response|
+    Heroku.instance.restart(self.name) do |response|
       block.call response
     end
   end
 
   def load_processes(&block)
     unless @processes.any?
-      Heroku.new.processes(self.name) do |response|
+      Heroku.instance.processes(self.name) do |response|
         if response.ok?
           processes = response.json.map do |process_json|
             Process.new(process_json)
@@ -79,7 +79,7 @@ class Application
 
   def load_addons(&block)
     unless @addons.any?
-      Heroku.new.addons(self.name) do |response|
+      Heroku.instance.addons(self.name) do |response|
         if response.ok?
           @addons = response.json.map do |addon_json|
             Addon.new(addon_json)
@@ -97,7 +97,7 @@ class Application
 
   def load_config(&block)
     unless @config_vars.any?
-      Heroku.new.config(self.name) do |response|
+      Heroku.instance.config(self.name) do |response|
         if response.ok?
           @config_vars = []
           response.json.each_pair do |key, value|
@@ -152,7 +152,7 @@ end
 class ProcessWithCount < Struct.new(:app_name, :type, :count)
   def restart(&block)
 
-    Heroku.new.restart_process(app_name, type) do |response|
+    Heroku.instance.restart_process(app_name, type) do |response|
       block.call response
     end
   end

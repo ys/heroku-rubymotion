@@ -2,6 +2,10 @@ class Heroku
 
   HEROKU_API = "https://api.heroku.com"
 
+  def self.instance
+    @@heroku ||= new
+  end
+
   def login(username, password, &block)
     body = { username: username, password: password }
     BW::HTTP.post("#{HEROKU_API}/login", { headers: headers, payload: body }) do |response|

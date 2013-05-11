@@ -2,9 +2,10 @@ class DeckController < IIViewDeckController
 
   def init
     super
-    self.panningMode = IIViewDeckPanningViewPanning
+    #self.panningMode = IIViewDeckPanningViewPanning
     application_controller = ChooseAppController.alloc.init
-    self.panningView = application_controller.view
+    #self.panningView = application_controller.view
+    self.centerhiddenInteractivity = IIViewDeckCenterHiddenNotUserInteractiveWithTapToClose
     nav_controller ||= UINavigationController.alloc.initWithRootViewController(application_controller)
     nav_controller.navigationBar.tintColor = 0xE17666.uicolor
     left_controller = NavigationController.alloc.init

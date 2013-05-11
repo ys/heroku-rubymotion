@@ -1,18 +1,17 @@
 class NavigationController < UITableViewController
+  include BW::KVO
 
   attr_accessor :delegate
 
   def init
     super
     @apps = []
-    self
-  end
-
-  def viewWillAppear(animated)
+    @apps_controllers = {}
     Application.all do |apps|
       @apps = apps
       self.view.reloadData
     end
+    self
   end
 
   def viewDidLoad
@@ -34,51 +33,85 @@ class NavigationController < UITableViewController
   end
 
   def tableView(tableView, cellForRowAtIndexPath: indexPath)
-    @reuseIdentifier ||= "MENU"
-
-    cell = tableView.dequeueReusableCellWithIdentifier(@reuseIdentifier) || begin
-      UITableViewCell.alloc.initWithStyle(UITableViewCellStyleDefault, reuseIdentifier:@reuseIdentifier)
+    if indexPath.row == @apps.size
+      @reuseIdentifier = "MENUITEM_LOGOUT"
+    else
+      @reuseIdentifier = "MENUITEM"
     end
 
-    # put your data in the cell
-    cell.text = @apps[indexPath.row].name
+    cell = tableView.dequeueReusableCellWithIdentifier(@reuseIdentifier) || begin
+    UITableViewCell.alloc.initWithStyle(UITableViewCellStyleDefault, reuseIdentifier:@reuseIdentifier)
+    end
+    if indexPath.row != @apps.size
+      # put your data in the cell
+      cell.text = @apps[indexPath.row].name
+      cell.textLabel.color = 0x4C6673.uicolor
+      cell.contentView.backgroundColor = :clear.uicolor
+    else
+      cell.text = "Logout"
+      cell.imageView.setImage "settings.png".uiimage
+      cell.textLabel.color = 0x20404b.uicolor
+      cell.contentView.backgroundColor = 0xD3C7B9.uicolor
+    end
     cell.textLabel.backgroundColor = :clear.uicolor
-    cell.textLabel.color = 0xE79E8F.uicolor
     #cell.imageView.setImage "app_icon.png".uiimage
-    cell.contentView.backgroundColor = :clear.uicolor
     selectedBackgroundView = UIView.alloc.initWithFrame(cell.frame)
     selectedBackgroundView.backgroundColor = 0xE79E8F.uicolor
-    cell.textLabel.highlightedTextColor = 0xE17666.uicolor
+    cell.textLabel.highlightedTextColor = 0x20404b.uicolor
     cell.selectedBackgroundView = selectedBackgroundView
     cell
   end
 
   def tableView(tableView, numberOfRowsInSection: section)
-    @apps.size
+    @apps.size + 1
   end
 
   def tableView(tableView, didSelectRowAtIndexPath: indexPath)
-    switch_to_app(indexPath)
+    if indexPath.row != @apps.size
+      switch_to_app(indexPath)
+    else
+      show_settings
+    end
   end
 
   def switch_to_app(indexPath)
     self.viewDeckController.closeLeftViewBouncing -> (controller) do
       app = @apps[indexPath.row]
-      app
-      @application_controller = ApplicationController.alloc.init
-      @application_controller.app = app
-      self.viewDeckController.panningView = @application_controller.view
-      @ps_controller = ProcessesController.alloc.init
-      @ps_controller.app = app
-      @config_controller = ConfigController.alloc.init
-      @config_controller.app = app
-      @addons_controller = AddonsController.alloc.init
-      @addons_controller.app = app
+      unless @apps_controllers[app.name]
+        @apps_controllers[app.name] = {}
+        application_controller = ApplicationController.alloc.init
+        application_controller.app = app
+        @apps_controllers[app.name][:app] = application_controller
+        ps_controller = ProcessesController.alloc.init
+        ps_controller.app = app
+        @apps_controllers[app.name][:ps] = ps_controller
+        config_controller = ConfigController.alloc.init
+        config_controller.app = app
+        @apps_controllers[app.name][:config] = config_controller
+        addons_controller = AddonsController.alloc.init
+        addons_controller.app = app
+        @apps_controllers[app.name][:addons] = addons_controller
+      end
       @tab_controller ||= ApplicationContainerController.alloc.initWithNibName(nil, bundle: nil)
-      @tab_controller.viewControllers = [@application_controller, @ps_controller, @addons_controller, @config_controller ]
+      @tab_controller.selectedIndex = 0
+      @tab_controller.viewControllers = [@apps_controllers[app.name][:app],
+                                         @apps_controllers[app.name][:ps],
+                                         @apps_controllers[app.name][:addons],
+                                         @apps_controllers[app.name][:config]]
       @tab_controller.title = app.name
       self.viewDeckController.centerController.setViewControllers [@tab_controller], animated: false
     end
+  end
+
+  def show_settings
+    UIActionSheet.alert "", buttons: ['Cancel', 'Logout'],
+      cancel: proc { },
+      destructive: proc { logout }
+  end
+
+  def logout
+    User.destroy
+    self.parentViewController.parentViewController.switch_to_login
   end
 
 end
