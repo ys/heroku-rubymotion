@@ -58,8 +58,8 @@ class Application
     end
   end
 
-  def load_processes(&block)
-    unless @processes.any?
+  def load_processes(force = false, &block)
+    unless !force && @processes.any?
       Heroku.instance.processes(self.name) do |response|
         if response.ok?
           processes = response.json.map do |process_json|
@@ -70,6 +70,7 @@ class Application
           block.call processes
         else
           TempAlert.alert 'oops', false
+          block.call []
         end
       end
     else
@@ -77,8 +78,8 @@ class Application
     end
   end
 
-  def load_addons(&block)
-    unless @addons.any?
+  def load_addons(force = false, &block)
+    unless !force && @addons.any?
       Heroku.instance.addons(self.name) do |response|
         if response.ok?
           @addons = response.json.map do |addon_json|
@@ -88,6 +89,7 @@ class Application
           block.call @addons
         else
           TempAlert.alert 'oops', false
+          block.call []
         end
       end
     else
@@ -95,8 +97,8 @@ class Application
     end
   end
 
-  def load_config(&block)
-    unless @config_vars.any?
+  def load_config(force = false, &block)
+    unless !force && @config_vars.any?
       Heroku.instance.config(self.name) do |response|
         if response.ok?
           @config_vars = []
@@ -107,6 +109,7 @@ class Application
           block.call @config_vars
         else
           TempAlert.alert 'oops', false
+          block.call []
         end
       end
     else

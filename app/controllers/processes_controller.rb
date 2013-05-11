@@ -16,6 +16,18 @@ class ProcessesController < UITableViewController
     @data = @app.process_types_with_count
     self.view.separatorColor = 0xD3C7B9.uicolor
     self.view.backgroundColor = :white.uicolor
+    @refreshControl = UIRefreshControl.alloc.init
+    @refreshControl.tintColor = 0xE79E8F.uicolor
+    @refreshControl.addTarget self, action: :reload_processes, forControlEvents:UIControlEventValueChanged
+    self.refreshControl = @refreshControl
+  end
+
+  def reload_processes
+    @app.load_processes(true) do |apps|
+      @data = @app.process_types_with_count
+      self.view.reloadData
+      @refreshControl.endRefreshing
+    end
   end
 
   def tableView(tableView, cellForRowAtIndexPath: indexPath)

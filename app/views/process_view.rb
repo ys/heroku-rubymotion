@@ -5,20 +5,13 @@ class ProcessView < UITableViewCell
   def initialize(ps)
     initWithStyle(UITableViewCellStyleDefault, reuseIdentifier:"PROCESS").tap do
       @process = ps
-      textLabel.text = @process.type
+      textLabel.text = @process.type.to_s
       textLabel.textColor = 0x20404B.uicolor
       textLabel.backgroundColor = :clear.uicolor
       self.contentView.backgroundColor = :clear.uicolor
 
       set_count_view
 
-      #on_swipe :left do |gesture|
-      #  set_restart_view
-      #end
-
-      #on_swipe :right do |gesture|
-      #  set_process_count_change_view
-      #end
       on_tap do |gesture|
         UIActionSheet.alert "Restart #{@process.type} process?", buttons: ['Cancel', 'Restart Process'],
           cancel: proc { },
@@ -59,27 +52,10 @@ class ProcessView < UITableViewCell
 
   def set_process_count_change_view
     self.accessoryView = nil
-    @add_button = UIButton.alloc.initWithFrame [[290, 8], [26, 26]]
-    @add_button.setImage UIImage.imageNamed("plus.png"), forState: UIControlStateNormal
-    @remove_button = UIButton.alloc.initWithFrame [[240, 8], [26, 26]]
-    @remove_button.setImage UIImage.imageNamed("minus.png"), forState: UIControlStateNormal
     @ps_count = UILabel.alloc.initWithFrame [[265, 8], [26, 26]]
     @ps_count.text = @process.count.to_s
     @ps_count.textAlignment = UITextAlignmentCenter
     @ps_count.backgroundColor = :clear.uicolor
     self.contentView.addSubview @ps_count
-    self.contentView.addSubview(@add_button)
-    self.contentView.addSubview(@remove_button)
-
-
-    @remove_button.on_tap do
-      @process.count -= 1 unless @process.count == 0
-      @ps_count.text = @process.count.to_s
-    end
-
-    @add_button.on_tap do
-      @process.count += 1 unless @process.count == 99
-      @ps_count.text = @process.count.to_s
-    end
   end
 end

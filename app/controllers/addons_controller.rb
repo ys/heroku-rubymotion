@@ -19,6 +19,18 @@ class AddonsController < UITableViewController
     end
     view.separatorColor = 0xD3C7B9.uicolor
     view.backgroundColor = :white.uicolor
+    @refreshControl = UIRefreshControl.alloc.init
+    @refreshControl.tintColor = 0xE79E8F.uicolor
+    @refreshControl.addTarget self, action: :reload_addons, forControlEvents:UIControlEventValueChanged
+    self.refreshControl = @refreshControl
+  end
+
+  def reload_addons
+    @app.load_addons(true) do |addons|
+      @data = addons
+      self.view.reloadData
+      @refreshControl.endRefreshing
+    end
   end
 
   def tableView(tableView, cellForRowAtIndexPath: indexPath)
@@ -30,7 +42,7 @@ class AddonsController < UITableViewController
     end
     addon = @data[indexPath.row]
 
-    cell.textLabel.text = addon.full_description
+    cell.textLabel.text = addon.full_description.to_s
     cell.textLabel.textColor = 0x20404B.uicolor
     cell.textLabel.backgroundColor = :clear.uicolor
     cell.contentView.backgroundColor = :clear.uicolor

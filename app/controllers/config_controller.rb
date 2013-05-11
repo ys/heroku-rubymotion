@@ -19,6 +19,18 @@ class ConfigController < UITableViewController
     end
     view.separatorColor = 0xD3C7B9.uicolor
     view.backgroundColor = :white.uicolor
+    @refreshControl = UIRefreshControl.alloc.init
+    @refreshControl.tintColor = 0xE79E8F.uicolor
+    @refreshControl.addTarget self, action: :reload_config, forControlEvents:UIControlEventValueChanged
+    self.refreshControl = @refreshControl
+  end
+
+  def reload_config
+    @app.load_config(true) do |config|
+      @data = config
+      self.view.reloadData
+      @refreshControl.endRefreshing
+    end
   end
 
   def tableView(tableView, cellForRowAtIndexPath: indexPath)
@@ -29,20 +41,18 @@ class ConfigController < UITableViewController
       UITableViewCell.alloc.initWithStyle(UITableViewCellStyleSubtitle, reuseIdentifier:@reuseIdentifier)
     end
     config_var = @data[indexPath.row]
-
-    cell.textLabel.text = config_var.key
+    cell.textLabel.text = config_var.key.to_s.downcase
     cell.textLabel.textColor = 0x20404B.uicolor
     cell.textLabel.backgroundColor = :clear.uicolor
     cell.contentView.backgroundColor = :clear.uicolor
 
-    cell.detailTextLabel.text = config_var.value
+    cell.detailTextLabel.text = config_var.value.to_s
     cell.detailTextLabel.textColor = 0x4C6673.uicolor
     cell.detailTextLabel.backgroundColor = :clear.uicolor
 
     bg_view = UIView.alloc.init
     bg_view.setBackgroundColor 0xD3C7B9.uicolor
     cell.setSelectedBackgroundView bg_view
-
     cell
   end
 

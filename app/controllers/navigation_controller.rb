@@ -44,7 +44,7 @@ class NavigationController < UITableViewController
     end
     if indexPath.row != @apps.size
       # put your data in the cell
-      cell.text = @apps[indexPath.row].name
+      cell.text = @apps[indexPath.row].name.to_s
       cell.textLabel.color = 0x4C6673.uicolor
       cell.contentView.backgroundColor = :clear.uicolor
     else
@@ -77,28 +77,29 @@ class NavigationController < UITableViewController
   def switch_to_app(indexPath)
     self.viewDeckController.closeLeftViewBouncing -> (controller) do
       app = @apps[indexPath.row]
-      unless @apps_controllers[app.name]
-        @apps_controllers[app.name] = {}
+      app_name = app.name.to_s
+      unless @apps_controllers[app_name]
+        @apps_controllers[app_name] = {}
         application_controller = ApplicationController.alloc.init
         application_controller.app = app
-        @apps_controllers[app.name][:app] = application_controller
+        @apps_controllers[app_name][:app] = application_controller
         ps_controller = ProcessesController.alloc.init
         ps_controller.app = app
-        @apps_controllers[app.name][:ps] = ps_controller
+        @apps_controllers[app_name][:ps] = ps_controller
         config_controller = ConfigController.alloc.init
         config_controller.app = app
-        @apps_controllers[app.name][:config] = config_controller
+        @apps_controllers[app_name][:config] = config_controller
         addons_controller = AddonsController.alloc.init
         addons_controller.app = app
-        @apps_controllers[app.name][:addons] = addons_controller
+        @apps_controllers[app_name][:addons] = addons_controller
       end
       @tab_controller ||= ApplicationContainerController.alloc.initWithNibName(nil, bundle: nil)
       @tab_controller.selectedIndex = 0
-      @tab_controller.viewControllers = [@apps_controllers[app.name][:app],
-                                         @apps_controllers[app.name][:ps],
-                                         @apps_controllers[app.name][:addons],
-                                         @apps_controllers[app.name][:config]]
-      @tab_controller.title = app.name
+      @tab_controller.viewControllers = [@apps_controllers[app_name][:app],
+                                         @apps_controllers[app_name][:ps],
+                                         @apps_controllers[app_name][:addons],
+                                         @apps_controllers[app_name][:config]]
+      @tab_controller.title = app_name
       self.viewDeckController.centerController.setViewControllers [@tab_controller], animated: false
     end
   end
