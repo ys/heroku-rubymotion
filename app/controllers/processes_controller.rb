@@ -37,6 +37,7 @@ class ProcessesController < UITableViewController
     cell = tableView.dequeueReusableCellWithIdentifier(@reuseIdentifier) || begin
       ProcessView.new @data[indexPath.row]
     end
+    cell.process = @data[indexPath.row]
 
     bg_view = UIView.alloc.init
     bg_view.setBackgroundColor 0xD3C7B9.uicolor

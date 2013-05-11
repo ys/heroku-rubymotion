@@ -1,6 +1,7 @@
 class ProcessView < UITableViewCell
+  include BW::KVO
 
-  attr_accessor :process
+  attr_accessor :process, :type, :count
 
   def initialize(ps)
     initWithStyle(UITableViewCellStyleDefault, reuseIdentifier:"PROCESS").tap do
@@ -9,6 +10,10 @@ class ProcessView < UITableViewCell
       textLabel.textColor = 0x20404B.uicolor
       textLabel.backgroundColor = :clear.uicolor
       self.contentView.backgroundColor = :clear.uicolor
+      observe(self, :process) do |old_value, new_value|
+        textLabel.text = new_value.type.to_s
+        accessoryView.text = new_value.count.to_s
+      end
 
       set_count_view
 

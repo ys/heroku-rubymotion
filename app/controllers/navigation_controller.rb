@@ -1,5 +1,4 @@
 class NavigationController < UITableViewController
-  include BW::KVO
 
   attr_accessor :delegate
 

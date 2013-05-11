@@ -59,7 +59,7 @@ class Application
   end
 
   def load_processes(force = false, &block)
-    unless !force && @processes.any?
+    if force || @processes.empty?
       Heroku.instance.processes(self.name) do |response|
         if response.ok?
           processes = response.json.map do |process_json|
@@ -79,7 +79,7 @@ class Application
   end
 
   def load_addons(force = false, &block)
-    unless !force && @addons.any?
+    if force || @addons.empty?
       Heroku.instance.addons(self.name) do |response|
         if response.ok?
           @addons = response.json.map do |addon_json|
@@ -98,7 +98,7 @@ class Application
   end
 
   def load_config(force = false, &block)
-    unless !force && @config_vars.any?
+    if force || @config_vars.empty?
       Heroku.instance.config(self.name) do |response|
         if response.ok?
           @config_vars = []
