@@ -31,22 +31,21 @@ class MainController < UIViewController
 
   def switch_to_deck
     init_deck unless @deck_controller
-    self.transitionFromViewController @login_controller, toViewController: @deck_controller,
-      duration: 0.3,
-      options: UIViewAnimationOptionTransitionCrossDissolve,
-      animations:nil,
-      completion: ->(arg) {}
+    transition @login_controller, @deck_controller,
   end
 
   def switch_to_login
     init_login unless @login_controller
-    self.transitionFromViewController @deck_controller, toViewController: @login_controller,
-                                                         duration: 0.3,
-                                                         options: UIViewAnimationOptionTransitionCrossDissolve,
-                                                         animations:nil,
-                                                         completion: ->(arg) {}
+    transition @deck_controller, @login_controller
   end
 
+  def transition(from, to)
+    self.transitionFromViewController from, toViewController: to,
+                                            duration: 0.3,
+                                            options: UIViewAnimationOptionTransitionCrossDissolve,
+                                            animations:nil,
+                                            completion: ->(arg) {}
+  end
 
 end
 

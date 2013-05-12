@@ -13,52 +13,41 @@ class AddonsController < UITableViewController
 
   def viewDidLoad
     super
-    @app.load_addons do |addons|
-      @data = addons
-      view.reloadData
-    end
     view.separatorColor = 0xD3C7B9.uicolor
     view.backgroundColor = :white.uicolor
-    @refreshControl = UIRefreshControl.alloc.init
-    @refreshControl.tintColor = 0xE79E8F.uicolor
-    @refreshControl.addTarget self, action: :reload_addons, forControlEvents:UIControlEventValueChanged
-    self.refreshControl = @refreshControl
+
+    load_addons(false)
+    set_reloader
   end
 
-  def reload_addons
-    @app.load_addons(true) do |addons|
+  def load_addons(refresh = true)
+    @app.load_addons(refresh) do |addons|
       @data = addons
-      self.view.reloadData
-      @refreshControl.endRefreshing
+      view.reloadData
+      @refreshControl.endRefreshing if refresh
     end
+  end
+
+  def set_reloader
+    @refreshControl = UIRefreshControl.alloc.init
+    @refreshControl.tintColor = 0xE79E8F.uicolor
+    @refreshControl.addTarget self, action: :load_addons, forControlEvents:UIControlEventValueChanged
+    self.refreshControl = @refreshControl
   end
 
   def tableView(tableView, cellForRowAtIndexPath: indexPath)
     # return the UITableViewCell for the row
-    @reuseIdentifier ||= "PROCESS"
+    @reuseIdentifier ||= "ADDON"
 
     cell = tableView.dequeueReusableCellWithIdentifier(@reuseIdentifier) || begin
-      UITableViewCell.alloc.initWithStyle(UITableViewCellStyleDefault, reuseIdentifier:@reuseIdentifier)
+      AddonView.alloc.init
     end
-    addon = @data[indexPath.row]
-
-    cell.textLabel.text = addon.full_description.to_s
-    cell.textLabel.textColor = 0x20404B.uicolor
-    cell.textLabel.backgroundColor = :clear.uicolor
-    cell.contentView.backgroundColor = :clear.uicolor
-
-    bg_view = UIView.alloc.init
-    bg_view.setBackgroundColor 0xD3C7B9.uicolor
-    cell.setSelectedBackgroundView bg_view
+    cell.addon = @data[indexPath.row]
 
     cell
   end
 
   def tableView(tableView, numberOfRowsInSection: section)
     @data.size
-  end
-
-  def tableView(tableView, didSelectRowAtIndexPath: indexPath)
-    puts @data[indexPath.row].url
   end
 end

@@ -3,16 +3,17 @@ class ProcessView < UITableViewCell
 
   attr_accessor :process, :type, :count
 
-  def initialize(ps)
+  def init
     initWithStyle(UITableViewCellStyleDefault, reuseIdentifier:"PROCESS").tap do
-      @process = ps
-      textLabel.text = @process.type.to_s
       textLabel.textColor = 0x20404B.uicolor
       textLabel.backgroundColor = :clear.uicolor
       self.contentView.backgroundColor = :clear.uicolor
-      observe(self, :process) do |old_value, new_value|
-        textLabel.text = new_value.type.to_s
-        accessoryView.text = new_value.count.to_s
+      bg_view = UIView.alloc.init
+      bg_view.setBackgroundColor 0xD3C7B9.uicolor
+      setSelectedBackgroundView bg_view
+      observe(self, :process) do |_, new_ps|
+        textLabel.text     = new_ps.type.to_s
+        accessoryView.text = new_ps.count.to_s
       end
 
       set_count_view
@@ -27,7 +28,6 @@ class ProcessView < UITableViewCell
 
   def set_count_view
     @count_label = UILabel.alloc.initWithFrame(CGRectMake(0, 0, 16, 16))
-    @count_label.text = @process.count.to_s
     @count_label.textColor = 0x4C6673.uicolor
     @count_label.backgroundColor = :clear.uicolor
 

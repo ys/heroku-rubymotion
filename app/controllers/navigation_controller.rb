@@ -19,11 +19,11 @@ class NavigationController < UITableViewController
     self.view.backgroundColor = :white.uicolor
     @refreshControl = UIRefreshControl.alloc.init
     @refreshControl.tintColor = 0xE79E8F.uicolor
-    @refreshControl.addTarget self, action: :reload_apps, forControlEvents:UIControlEventValueChanged
+    @refreshControl.addTarget self, action: :reload, forControlEvents:UIControlEventValueChanged
     self.refreshControl = @refreshControl
   end
 
-  def reload_apps
+  def reload
     Application.all do |apps|
       @apps = apps
       self.view.reloadData
@@ -77,27 +77,18 @@ class NavigationController < UITableViewController
     self.viewDeckController.closeLeftViewBouncing -> (controller) do
       app = @apps[indexPath.row]
       app_name = app.name.to_s
+      controller_names = %w[application processes addons config]
       unless @apps_controllers[app_name]
         @apps_controllers[app_name] = {}
-        application_controller = ApplicationController.alloc.init
-        application_controller.app = app
-        @apps_controllers[app_name][:app] = application_controller
-        ps_controller = ProcessesController.alloc.init
-        ps_controller.app = app
-        @apps_controllers[app_name][:ps] = ps_controller
-        config_controller = ConfigController.alloc.init
-        config_controller.app = app
-        @apps_controllers[app_name][:config] = config_controller
-        addons_controller = AddonsController.alloc.init
-        addons_controller.app = app
-        @apps_controllers[app_name][:addons] = addons_controller
+        controller_names.each{|controller_name|
+          controller = Kernel.const_get("#{controller_name.capitalize}Controller").alloc.init
+          controller.app = app
+          @apps_controllers[app_name][controller_name.to_sym] = controller
+        }
       end
       @tab_controller ||= ApplicationContainerController.alloc.initWithNibName(nil, bundle: nil)
       @tab_controller.selectedIndex = 0
-      @tab_controller.viewControllers = [@apps_controllers[app_name][:app],
-                                         @apps_controllers[app_name][:ps],
-                                         @apps_controllers[app_name][:addons],
-                                         @apps_controllers[app_name][:config]]
+      @tab_controller.viewControllers = controller_names.map { |name| @apps_controllers[app_name][name.to_sym] }
       @tab_controller.title = app_name
       self.viewDeckController.centerController.setViewControllers [@tab_controller], animated: false
     end
