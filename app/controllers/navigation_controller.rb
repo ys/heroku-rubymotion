@@ -77,7 +77,7 @@ class NavigationController < UITableViewController
     self.viewDeckController.closeLeftViewBouncing -> (controller) do
       app = @apps[indexPath.row]
       app_name = app.name.to_s
-      controller_names = %w[application processes addons config]
+      controller_names = %w[application processes addons config collaborators]
       unless @apps_controllers[app_name]
         @apps_controllers[app_name] = {}
         controller_names.each{|controller_name|
@@ -88,6 +88,7 @@ class NavigationController < UITableViewController
       end
       @tab_controller ||= ApplicationContainerController.alloc.initWithNibName(nil, bundle: nil)
       @tab_controller.selectedIndex = 0
+      @tab_controller.app = app
       @tab_controller.viewControllers = controller_names.map { |name| @apps_controllers[app_name][name.to_sym] }
       @tab_controller.title = app_name
       self.viewDeckController.centerController.setViewControllers [@tab_controller], animated: false

@@ -4,21 +4,28 @@ class ApplicationView < UIView
 
   def initialize(app, parent_view)
     initWithFrame(parent_view.bounds).tap do
-      web_dynos_label= UILabel.alloc.initWithFrame(CGRectMake(0, 30, 160, 16))
+
+      dynos_container = UIView.alloc.initWithFrame([[10, 20],[300, 80]])
+      dynos_container.backgroundColor = 0xD3C7B9.uicolor
+      dynos_container.layer.cornerRadius = 2.0
+      dynos_container.clipsToBounds = true
+      self.addSubview dynos_container
+
+      web_dynos_label = UILabel.alloc.initWithFrame([[0, 30], [160, 16]])
       web_dynos_label.text = "Web"
       web_dynos_label.textColor = 0x20404B.uicolor
       web_dynos_label.backgroundColor = :clear.uicolor
       web_dynos_label.textAlignment = UITextAlignmentCenter
       self.addSubview web_dynos_label
 
-      other_dynos_label= UILabel.alloc.initWithFrame(CGRectMake(160, 30, 160, 16))
+      other_dynos_label = UILabel.alloc.initWithFrame([[160, 30], [160, 16]])
       other_dynos_label.text = "Other"
       other_dynos_label.textColor = 0x20404B.uicolor
       other_dynos_label.backgroundColor = :clear.uicolor
       other_dynos_label.textAlignment = UITextAlignmentCenter
       self.addSubview other_dynos_label
 
-      @web_dynos_count_label= UILabel.alloc.initWithFrame(CGRectMake(0, 50, 160, 40))
+      @web_dynos_count_label = UILabel.alloc.initWithFrame(CGRectMake(0, 50, 160, 40))
       @web_dynos_count_label.text = app.web_processes.to_s
       @web_dynos_count_label.textColor = 0x20404B.uicolor
       @web_dynos_count_label.backgroundColor = :clear.uicolor
@@ -26,7 +33,7 @@ class ApplicationView < UIView
       @web_dynos_count_label.font = UIFont.systemFontOfSize 40
       self.addSubview @web_dynos_count_label
 
-      @other_dynos_count_label= UILabel.alloc.initWithFrame(CGRectMake(160, 50, 160, 40))
+      @other_dynos_count_label = UILabel.alloc.initWithFrame(CGRectMake(160, 50, 160, 40))
       @other_dynos_count_label.text = app.other_processes.to_s
       @other_dynos_count_label.textColor = 0x20404B.uicolor
       @other_dynos_count_label.backgroundColor = :clear.uicolor
@@ -39,8 +46,10 @@ class ApplicationView < UIView
       @restart_button.setTitleColor :white.uicolor, forState: UIControlStateHighlighted
       @restart_button.setBackgroundImage "light_pink.png".uiimage, forState: UIControlStateNormal
       @restart_button.setBackgroundImage "navbar.png".uiimage, forState: UIControlStateHighlighted
+      @restart_button.layer.cornerRadius = 2.0
+      @restart_button.clipsToBounds = true
       @restart_button.setTitle "Restart the app", forState: UIControlStateNormal
-      @restart_button.frame = [[10, 130], [300, 50]]
+      @restart_button.frame = [[10, 120], [300, 50]]
       @restart_button.addTarget(self,
                                action: :restart_app_alert,
                                forControlEvents: UIControlEventTouchUpInside)

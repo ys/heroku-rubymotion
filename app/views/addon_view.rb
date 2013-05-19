@@ -15,6 +15,11 @@ class AddonView < UITableViewCell
       observe(self, :addon) do |_, new_addon|
         textLabel.text = new_addon.full_description.to_s
       end
+      on_tap do |gesture|
+        UIActionSheet.alert self.addon.full_description.to_s, buttons: ['Cancel', nil, 'Open in Safari'],
+          cancel: proc { },
+          success: proc { self.addon.sso_url.nsurl.open }
+      end
     end
   end
 end

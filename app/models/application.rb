@@ -35,6 +35,8 @@ class Application
     @addons_loaded = false
     @config_vars = []
     @config_loaded = false
+    @collaborators = []
+    @collaborators_loaded = false
   end
 
   def self.all(&block)
@@ -94,6 +96,25 @@ class Application
       end
     else
       block.call @addons
+    end
+  end
+
+  def load_collaborators(force = false, &block)
+    if force || @collaborators.empty?
+      Heroku.instance.collaborators(self.name) do |response|
+        if response.ok?
+          @collaborators = response.json.map do |collaborator_json|
+            Collaborator.new(collaborator_json)
+          end
+          @collaborators_loaded = true
+          block.call @collaborators
+        else
+          TempAlert.alert 'oops', false
+          block.call []
+        end
+      end
+    else
+      block.call @collaborators
     end
   end
 

@@ -21,6 +21,10 @@ class Heroku
     authorized_call("/apps/#{name}", &block)
   end
 
+  def collaborators(application_name, &block)
+    authorized_call("/apps/#{application_name}/collaborators", &block)
+  end
+
   def processes(application_name, &block)
     authorized_call("/apps/#{application_name}/ps", &block)
   end
