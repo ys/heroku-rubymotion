@@ -41,6 +41,10 @@ class Heroku
     authorized_post("/apps/#{application_name}/ps/restart?type=#{process_type}", &block)
   end
 
+  def scale_process(application_name, process_type, quantity, &block)
+    authorized_post("/apps/#{application_name}/ps/scale?type=#{process_type}&qty=#{quantity}", &block)
+  end
+
   def restart(application_name, &block)
     authorized_post("/apps/#{application_name}/ps/restart", &block)
   end

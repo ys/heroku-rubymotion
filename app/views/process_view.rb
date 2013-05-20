@@ -15,14 +15,11 @@ class ProcessView < UITableViewCell
         textLabel.text     = new_ps.type.to_s
         accessoryView.text = new_ps.count.to_s
       end
+      observe(process, :count) do |_, new_count|
+        accessoryView.text = new_count.to_s
+      end
 
       set_count_view
-
-      on_tap do |gesture|
-        UIActionSheet.alert "Restart #{@process.type} process?", buttons: ['Cancel', 'Restart Process'],
-          cancel: proc { },
-          destructive: proc { restart_app }
-      end
     end
   end
 
@@ -35,15 +32,47 @@ class ProcessView < UITableViewCell
     self.accessoryView = @count_label
   end
 
+  def change_number_of_instances
+    @keyboard_view = UIView.alloc.initWithFrame([[0, 460], [320, 260]])  # y: 460, so offscreen, at the bottom.
+    nav_bar = UINavigationBar.alloc.initWithFrame([[0, 0], [320, 44]])
+
+    item = UINavigationItem.new
+    item.leftBarButtonItem = UIBarButtonItem.alloc.initWithBarButtonSystemItem(
+      UIBarButtonSystemItemCancel,
+      target: self,
+      action: :cancel)
+
+    item.rightBarButtonItem = UIBarButtonItem.alloc.initWithBarButtonSystemItem(
+      UIBarButtonSystemItemDone,
+      target: self,
+      action: :done)
+
+    nav_bar.items = [item]  # if you want, play with assigning more items.  I dunno what happens!
+    @keyboard_view << nav_bar
+    @picker_delegate = self
+    @picker_view = UIPickerView.alloc.initWithFrame([[0, 44], [320, 216]])
+    @picker_view.showsSelectionIndicator = true
+    @picker_view.delegate = @picker_view.dataSource = @picker_delegate
+    @picker_view.selectRow(8, inComponent:0, animated:false)
+    @keyboard_view << @picker_view
+    self.superview << @keyboard_view
+    @modal_view.fade_in
+    @keyboard_view.slide :up
+  end
+
+  def numberOfComponentsInPickerView(picker_view)
+    1
+  end
+
+  def pickerView(picker_view, numberOfRowsInComponent:section)
+    (1..99).to_a.size
+  end
+
+  def pickerView(picker_view, titleForRow:row, forComponent:section)
+    (1..99).to_a[8].to_s
+  end
+
   def restart_app
-    @process.restart do |response|
-      if response.ok?
-        set_count_view
-        TempAlert.alert "Restarted", true
-      else
-        TempAlert.alert "oops", false
-      end
-    end
   end
 
   def set_restart_view

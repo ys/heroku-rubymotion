@@ -173,12 +173,3 @@ class Application
   end
 end
 
-class ProcessWithCount < Struct.new(:app_name, :type, :count)
-  def restart(&block)
-
-    Heroku.instance.restart_process(app_name, type) do |response|
-      block.call response
-    end
-  end
-
-end
