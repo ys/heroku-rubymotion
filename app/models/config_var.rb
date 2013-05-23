@@ -6,4 +6,5 @@ class ConfigVar
     @key = key
     @value = value
   end
+
 end

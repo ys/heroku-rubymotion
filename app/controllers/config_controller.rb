@@ -40,7 +40,7 @@ class ConfigController < UITableViewController
     @reuseIdentifier ||= "CONFIG"
 
     cell = tableView.dequeueReusableCellWithIdentifier(@reuseIdentifier) || begin
-      ConfigView.alloc.init
+    ConfigView.alloc.init
     end
     cell.config = @data[indexPath.row]
 
@@ -52,6 +52,24 @@ class ConfigController < UITableViewController
   end
 
   def tableView(tableView, didSelectRowAtIndexPath: indexPath)
+    config = @data[indexPath.row]
+    alert = BW::UIAlertView.plain_text_input(title: config.key, placeholder: config.value) do |alert|
+      unless alert.clicked_button.cancel?
+        new_value = alert.plain_text_field.text
+        if config.value != new_value && new_value.size > 0
+          config.value = new_value
+          app.update_config(config) do |response|
+            if response.ok?
+              TempAlert.alert "Saved", true
+            else
+              TempAlert.alert "Oops", false
+            end
+            self.view.reloadData
+          end
+        end
+      end
+    end
+    alert.show
   end
 end
 

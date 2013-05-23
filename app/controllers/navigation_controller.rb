@@ -4,7 +4,11 @@ class NavigationController < UITableViewController
 
   def init
     super
-    @apps = []
+    @apps = if App::Persistence["apps"]
+              App::Persistence["apps"].map{|name| Application.new(name: name) }
+            else
+              []
+            end
     @apps_controllers = {}
     Application.all do |apps|
       @apps = apps

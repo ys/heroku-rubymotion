@@ -47,6 +47,7 @@ class Application
           app.load_processes {}
           app
         end
+        App::Persistence["apps"] = apps.map(&:name)
         block.call apps
       else
         TempAlert.alert "oops", false
@@ -135,6 +136,18 @@ class Application
       end
     else
       block.call @config_vars
+    end
+  end
+
+  def update_config(config, &block)
+    Heroku.instance.update_config(self.name, config.key, config.value) do |response|
+      block.call response
+    end
+  end
+
+  def delete_collaborator(collaborator, &block)
+    Heroku.instance.delete_collaborator(self.name, collaborator.email) do |response|
+      block.call response
     end
   end
 
