@@ -20,6 +20,7 @@ class ConfigView < UITableViewCell
         textLabel.text = new_config.key.to_s.downcase
         detailTextLabel.text = new_config.value.to_s
       end
+
     end
   end
 end

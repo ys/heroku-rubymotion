@@ -32,9 +32,9 @@ class ApplicationContainerController < UITabBarController
   end
 
   def openOptions
-    UIActionSheet.alert "What do you want to do", buttons: ['Cancel', nil, 'Open in Safari'],
+    UIActionSheet.alert app.name, buttons: ['Cancel', nil, 'View in Safari'],
       cancel: proc { },
-      success: proc { |pressed| self.openInSafari if pressed == 'Show in Safari' }
+      success: proc { |pressed| self.openInSafari if pressed == 'View in Safari' }
   end
 
   def openInSafari
