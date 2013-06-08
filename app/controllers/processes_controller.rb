@@ -4,7 +4,7 @@ class ProcessesController < UITableViewController
 
   def init
     super
-    tab_bar_item = UITabBarItem.alloc.initWithTitle "PS", image:"ps.png".uiimage, tag: 2
+    tab_bar_item = UITabBarItem.alloc.initWithTitle "Dynos", image:"ps.png".uiimage, tag: 2
     tab_bar_item.setFinishedSelectedImage "ps.png".uiimage,  withFinishedUnselectedImage: "ps_white.png".uiimage
     self.tabBarItem = tab_bar_item
     self

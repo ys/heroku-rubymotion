@@ -1,8 +1,9 @@
 class Collaborator
-  ADDON_PROPERTIES = [:email,
-                      :access,
-                      :name,
-                      :role]
+  ADDON_PROPERTIES = [:role,
+                      :created_at,
+                      :updated_at,
+                      :id,
+                      :user]
 
   ADDON_PROPERTIES.each do |field|
     attr_accessor field

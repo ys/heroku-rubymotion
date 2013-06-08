@@ -20,7 +20,7 @@ class CollaboratorView < UITableViewCell
       self.setSelectedBackgroundView bg_view
 
       observe(self, :collaborator) do |_, new_collaborator|
-        textLabel.text = new_collaborator.email.to_s
+        textLabel.text = new_collaborator.user['email'].to_s
         owner_label.text = "(#{new_collaborator.role})" if new_collaborator.role
       end
     end

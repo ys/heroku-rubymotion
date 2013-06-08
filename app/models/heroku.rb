@@ -8,7 +8,7 @@ class Heroku
 
   def login(username, password, &block)
     body = { username: username, password: password }
-    BW::HTTP.post("#{HEROKU_API}/login", { headers: headers, payload: body }) do |response|
+    BW::HTTP.post("#{HEROKU_API}/login", { headers: json_headers, payload: body }) do |response|
       block.call(HerokuResponse.new(response)) if block
     end
   end
@@ -30,7 +30,7 @@ class Heroku
   end
 
   def processes(application_name, &block)
-    authorized_call("/apps/#{application_name}/ps", &block)
+    authorized_call("/apps/#{application_name}/dynos", &block)
   end
 
   def addons(application_name, &block)
@@ -38,12 +38,12 @@ class Heroku
   end
 
   def config(application_name, &block)
-    authorized_call("/apps/#{application_name}/config_vars", &block)
+    authorized_call("/apps/#{application_name}/config-vars", &block)
   end
 
   def update_config(application_name, key, value, &block)
     body = BW::JSON.generate({key => value})
-    authorized_put("/apps/#{application_name}/config_vars", body, &block)
+    authorized_put("/apps/#{application_name}/config-vars", body, &block)
   end
 
   def restart_process(application_name, process_type, &block)
@@ -76,7 +76,7 @@ class Heroku
     end
   end
 
-  def authorized_delete(path &block)
+  def authorized_delete(path, &block)
     BW::HTTP.delete("#{HEROKU_API}#{path}", { headers: authorization_headers }) do |response|
       block.call(HerokuResponse.new(response)) if block
     end
@@ -87,9 +87,15 @@ class Heroku
     headers.merge({ "Authorization" => "Basic #{user_pass}"})
   end
 
-  def headers
+  def json_headers
     {
       "Accept" => "application/json",
+    }
+  end
+
+  def headers
+    {
+      "Accept" => "application/vnd.heroku+json; version=3",
     }
   end
 end

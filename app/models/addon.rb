@@ -1,31 +1,25 @@
 class Addon
-  ADDON_PROPERTIES = [:attachable,
-                      :attachment_name,
-                      :beta,
-                      :configured,
-                      :consumes_dyno_hours,
+  ADDON_PROPERTIES = [:name,
+                      :created_at,
+                      :id,
                       :description,
-                      :group_description,
                       :name,
-                      :plan_description,
                       :price,
-                      :selective,
-                      :slug,
-                      :sso_url,
+                      :plan,
                       :state,
-                      :terms_of_service,
-                      :url]
+                      :updated_at]
 
   ADDON_PROPERTIES.each do |field|
     attr_accessor field
   end
 
-  def initialize(opt={})
-    setValuesForKeysWithDictionary(opt)
+  def initialize(opts={})
+    puts opts
+    setValuesForKeysWithDictionary(opts)
   end
 
   def full_description
-    "#{group_description} #{plan_description}"
+    plan['name']
   end
 
 end

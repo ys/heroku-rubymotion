@@ -1,27 +1,25 @@
-class Process
+class Dyno
   PS_PROPERTIES = [:id,
+                   :name,
                    :action,
                    :app_name,
-                   :attached,
+                   :attach_url,
                    :command,
-                   :elapsed,
-                   :pretty_state,
-                   :process,
+                   :created_at,
                    :release_version,
-                   :rendezvous_url,
                    :size,
                    :state,
-                   :transitioned_at,
                    :type,
-                   :upid]
+                   :updated_at]
 
   PS_PROPERTIES.each do |field|
     attr_accessor field
   end
 
-  def initialize(opts={})
+  def initialize(opts = nil)
+    opts ||= {}
     # Release is reserved word in Obj-C
-    opts[:release_version] = opts.delete(:release)
+    opts.delete('release')
     setValuesForKeysWithDictionary(opts)
   end
 

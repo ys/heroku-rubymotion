@@ -1,27 +1,19 @@
 class Application
   APP_PROPERTIES = [:id,
                     :buildpack_provided_description,
-                    :create_status,
                     :created_at,
-                    :domain_name,
-                    :dynos,
                     :git_url,
+                    :maintenance,
                     :name,
-                    :owner_email,
-                    :owner_name,
-                    :processes,
+                    :owner,
                     :released_at,
-                    :repo_migrate_status,
                     :repo_size,
-                    :requested_stack,
                     :region,
-                    :slug_size,
                     :slug_size,
                     :stack,
                     :tier,
                     :updated_at,
-                    :web_url,
-                    :workers]
+                    :web_url]
 
   APP_PROPERTIES.each do |field|
     attr_accessor field
@@ -66,7 +58,7 @@ class Application
       Heroku.instance.processes(self.name) do |response|
         if response.ok?
           processes = response.json.map do |process_json|
-            Process.new(process_json)
+            Dyno.new(process_json)
           end
           @processes = processes
           @processes_loaded = true
@@ -152,16 +144,24 @@ class Application
   end
 
   def web_processes
-    _processes.select{ |ps| ps.process =~ /^web/ }.size || dynos
+    if _processes.any?
+      _processes.select{ |ps| ps.name =~ /^web/ }.size
+    else
+      0
+    end
   end
 
   def other_processes
-    _processes.select{ |ps| !(ps.process =~ /^web/) }.size || workers
+    if _processes.any?
+      _processes.select{ |ps| !(ps.name =~ /^web/) }.size
+    else
+      0
+    end
   end
 
   def process_types
     _processes.map do |ps|
-      ps.process.split('.')[0]
+      ps.name.split('.')[0]
     end.uniq
   end
 
@@ -170,7 +170,7 @@ class Application
       hsh[ps] = 0
     end
     _processes.each do |ps|
-      processes[ps.process.split('.')[0]] += 1
+      processes[ps.name.split('.')[0]] += 1
     end
     processes.map { |key, value| ProcessWithCount.new(self.name, key, value) }
   end
