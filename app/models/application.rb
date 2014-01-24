@@ -21,8 +21,10 @@ class Application
 
   def initialize(opt={})
     setValuesForKeysWithDictionary(opt)
-    @processes = []
-    @processes_loaded = false
+    @dynos = []
+    @dynos_loaded = false
+    @formation = []
+    @formation_loaded = false
     @addons = []
     @addons_loaded = false
     @config_vars = []
@@ -36,11 +38,11 @@ class Application
       if response.ok?
         apps = response.json.map do |application_json|
           app = new(application_json)
-          app.load_processes {}
+          app.load_dynos {}
           app
         end
         App::Persistence["apps"] = apps.map(&:name)
-        block.call apps
+        block.call apps.sort_by(&:name)
       else
         TempAlert.alert "oops", false
       end
@@ -53,23 +55,43 @@ class Application
     end
   end
 
-  def load_processes(force = false, &block)
-    if force || @processes.empty?
-      Heroku.instance.processes(self.name) do |response|
+  def load_dynos(force = false, &block)
+    if force || @dynos.empty?
+      Heroku.instance.dynos(self.name) do |response|
         if response.ok?
-          processes = response.json.map do |process_json|
-            Dyno.new(process_json)
+          dynos = response.json.map do |dyno_json|
+            Dyno.new(dyno_json)
           end
-          @processes = processes
-          @processes_loaded = true
-          block.call processes
+          @dynos = dynos
+          @dynos_loaded = true
+          block.call dynos
         else
           TempAlert.alert 'oops', false
           block.call []
         end
       end
     else
-      block.call @processes
+      block.call @dynos
+    end
+  end
+
+  def load_formation(force = false, &block)
+    if force || @formation.empty?
+      Heroku.instance.formation(self.name) do |response|
+        if response.ok?
+          formation = response.json.map do |f_item_json|
+            FormationItem.new(f_item_json.merge({ app_name: self.name }))
+          end
+          @formation = formation
+          @formation_loaded = true
+          block.call formation
+        else
+          TempAlert.alert 'oops', false
+          block.call []
+        end
+      end
+    else
+      block.call @formation
     end
   end
 
@@ -143,43 +165,33 @@ class Application
     end
   end
 
-  def web_processes
-    if _processes.any?
-      _processes.select{ |ps| ps.name =~ /^web/ }.size
+  def web_dynos
+    if _dynos.any?
+      _dynos.select{ |ps| ps.name =~ /^web/ }.size
     else
       0
     end
   end
 
-  def other_processes
-    if _processes.any?
-      _processes.select{ |ps| !(ps.name =~ /^web/) }.size
+  def other_dynos
+    if _dynos.any?
+      _dynos.select{ |ps| !(ps.name =~ /^web/) }.size
     else
       0
     end
   end
 
-  def process_types
-    _processes.map do |ps|
+  def dyno_types
+    _dynos.map do |ps|
       ps.name.split('.')[0]
     end.uniq
   end
 
-  def process_types_with_count
-    processes = process_types.each_with_object({}) do |ps, hsh|
-      hsh[ps] = 0
-    end
-    _processes.each do |ps|
-      processes[ps.name.split('.')[0]] += 1
-    end
-    processes.map { |key, value| ProcessWithCount.new(self.name, key, value) }
-  end
-
-  def _processes
-    if @processes_loaded == true
-      @processes
+  def _dynos
+    if @dynos_loaded == true
+      @dynos
     else
-      load_processes do
+      load_dynos do
       end
       []
     end

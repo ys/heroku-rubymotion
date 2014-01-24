@@ -26,7 +26,7 @@ class ApplicationView < UIView
       self.addSubview other_dynos_label
 
       @web_dynos_count_label = UILabel.alloc.initWithFrame(CGRectMake(0, 50, 160, 40))
-      @web_dynos_count_label.text = app.web_processes.to_s
+      @web_dynos_count_label.text = app.web_dynos.to_s
       @web_dynos_count_label.textColor = 0x20404B.uicolor
       @web_dynos_count_label.backgroundColor = :clear.uicolor
       @web_dynos_count_label.textAlignment = UITextAlignmentCenter
@@ -34,7 +34,7 @@ class ApplicationView < UIView
       self.addSubview @web_dynos_count_label
 
       @other_dynos_count_label = UILabel.alloc.initWithFrame(CGRectMake(160, 50, 160, 40))
-      @other_dynos_count_label.text = app.other_processes.to_s
+      @other_dynos_count_label.text = app.other_dynos.to_s
       @other_dynos_count_label.textColor = 0x20404B.uicolor
       @other_dynos_count_label.backgroundColor = :clear.uicolor
       @other_dynos_count_label.textAlignment = UITextAlignmentCenter

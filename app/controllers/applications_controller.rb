@@ -1,9 +1,12 @@
-class NavigationController < UITableViewController
+class ApplicationsController < UITableViewController
+
+  stylesheet :list_screen
 
   attr_accessor :delegate
 
   def init
     super
+    self.title = 'Applications'
     @apps = if App::Persistence["apps"]
               App::Persistence["apps"].map{|name| Application.new(name: name) }
             else
@@ -11,7 +14,7 @@ class NavigationController < UITableViewController
             end
     @apps_controllers = {}
     Application.all do |apps|
-      @apps = apps
+      @apps = apps.sort_by(&:name)
       self.view.reloadData
     end
     self
@@ -19,13 +22,29 @@ class NavigationController < UITableViewController
 
   def viewDidLoad
     super
-    self.view.separatorColor = 0xE79E8F.uicolor
+    self.view.separatorColor = 0xffe8da.uicolor
     self.view.backgroundColor = :white.uicolor
     @refreshControl = UIRefreshControl.alloc.init
     @refreshControl.tintColor = 0xE79E8F.uicolor
     @refreshControl.addTarget self, action: :reload, forControlEvents:UIControlEventValueChanged
     self.refreshControl = @refreshControl
+    add_button
   end
+
+  def add_button
+    backButton = UIButton.alloc.initWithFrame [[0, 0], [26, 26]]
+    backButton.setImage UIImage.imageNamed("burger.png"), forState: UIControlStateNormal
+    backButton.setShowsTouchWhenHighlighted false
+    frame = backButton.frame
+    frame.size.width += 10
+    backButton.frame = frame
+    backButton.addTarget self.viewDeckController, action: "toggleLeftView", forControlEvents: UIControlEventTouchDown
+    barBackItem = UIBarButtonItem.alloc.initWithCustomView backButton
+    self.navigationItem.hidesBackButton = true
+    self.navigationItem.leftBarButtonItem = barBackItem
+  end
+
+
 
   def reload
     Application.all do |apps|
@@ -36,52 +55,35 @@ class NavigationController < UITableViewController
   end
 
   def tableView(tableView, cellForRowAtIndexPath: indexPath)
-    if indexPath.row == @apps.size
-      @reuseIdentifier = "MENUITEM_LOGOUT"
-    else
-      @reuseIdentifier = "MENUITEM"
-    end
+    @reuseIdentifier = "MENUITEM"
 
     cell = tableView.dequeueReusableCellWithIdentifier(@reuseIdentifier) || begin
     UITableViewCell.alloc.initWithStyle(UITableViewCellStyleDefault, reuseIdentifier:@reuseIdentifier)
     end
-    if indexPath.row != @apps.size
-      # put your data in the cell
-      cell.text = @apps[indexPath.row].name.to_s
-      cell.textLabel.color = 0x4C6673.uicolor
-      cell.contentView.backgroundColor = :clear.uicolor
-    else
-      cell.text = "Logout"
-      cell.imageView.setImage "settings.png".uiimage
-      cell.textLabel.color = 0x20404b.uicolor
-      cell.contentView.backgroundColor = 0xD3C7B9.uicolor
-    end
+    # put your data in the cell
+    cell.text = @apps[indexPath.row].name.to_s
+    cell.textLabel.color = 0x222222.uicolor
+    cell.contentView.backgroundColor = :clear.uicolor
     cell.textLabel.backgroundColor = :clear.uicolor
-    #cell.imageView.setImage "app_icon.png".uiimage
     selectedBackgroundView = UIView.alloc.initWithFrame(cell.frame)
-    selectedBackgroundView.backgroundColor = 0xE79E8F.uicolor
-    cell.textLabel.highlightedTextColor = 0x20404b.uicolor
+    selectedBackgroundView.backgroundColor = 0x3DCC95.uicolor
+    cell.textLabel.highlightedTextColor = 0xffffff.uicolor
     cell.selectedBackgroundView = selectedBackgroundView
     cell
   end
 
   def tableView(tableView, numberOfRowsInSection: section)
-    @apps.size + 1
+    @apps.size
   end
 
   def tableView(tableView, didSelectRowAtIndexPath: indexPath)
-    if indexPath.row != @apps.size
-      switch_to_app(indexPath)
-    else
-      show_settings
-    end
+    switch_to_app(indexPath)
   end
 
   def switch_to_app(indexPath)
-    self.viewDeckController.closeLeftViewBouncing -> (controller) do
       app = @apps[indexPath.row]
       app_name = app.name.to_s
-      controller_names = %w[application processes addons config collaborators]
+      controller_names = %w[application dynos addons config collaborators]
       unless @apps_controllers[app_name]
         @apps_controllers[app_name] = {}
         controller_names.each{|controller_name|
@@ -95,20 +97,9 @@ class NavigationController < UITableViewController
       @tab_controller.app = app
       @tab_controller.viewControllers = controller_names.map { |name| @apps_controllers[app_name][name.to_sym] }
       @tab_controller.title = app_name
-      self.viewDeckController.centerController.setViewControllers [@tab_controller], animated: false
-    end
+      self.navigationController.pushViewController @tab_controller, animated: true
   end
 
-  def show_settings
-    UIActionSheet.alert "", buttons: ['Cancel', 'Logout'],
-      cancel: proc { },
-      destructive: proc { logout }
-  end
-
-  def logout
-    User.destroy
-    self.parentViewController.parentViewController.switch_to_login
-  end
 
 end
 

@@ -14,7 +14,6 @@ class Addon
   end
 
   def initialize(opts={})
-    puts opts
     setValuesForKeysWithDictionary(opts)
   end
 

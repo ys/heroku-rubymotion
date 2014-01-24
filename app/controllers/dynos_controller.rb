@@ -1,4 +1,4 @@
-class ProcessesController < UITableViewController
+class DynosController < UITableViewController
 
   attr_accessor :app
 
@@ -7,6 +7,7 @@ class ProcessesController < UITableViewController
     tab_bar_item = UITabBarItem.alloc.initWithTitle "Dynos", image:"ps.png".uiimage, tag: 2
     tab_bar_item.setFinishedSelectedImage "ps.png".uiimage,  withFinishedUnselectedImage: "ps_white.png".uiimage
     self.tabBarItem = tab_bar_item
+    @data = []
     self
   end
 
@@ -15,20 +16,20 @@ class ProcessesController < UITableViewController
     super
     self.view.separatorColor = 0xD3C7B9.uicolor
     self.view.backgroundColor = :white.uicolor
-    @data = @app.process_types_with_count
+    load_dynos(false)
     set_reloader
   end
 
   def set_reloader
     @refreshControl = UIRefreshControl.alloc.init
     @refreshControl.tintColor = 0xE79E8F.uicolor
-    @refreshControl.addTarget self, action: :load_processes, forControlEvents:UIControlEventValueChanged
+    @refreshControl.addTarget self, action: :load_dynos, forControlEvents:UIControlEventValueChanged
     self.refreshControl = @refreshControl
   end
 
-  def load_processes(refresh = true)
-    @app.load_processes(refresh) do |apps|
-      @data = @app.process_types_with_count
+  def load_dynos(refresh = true)
+    @app.load_formation(refresh) do |formation|
+      @data = formation.sort_by(&:quantity).reverse
       self.view.reloadData
       @refreshControl.endRefreshing if refresh
     end
@@ -36,11 +37,11 @@ class ProcessesController < UITableViewController
 
   def tableView(tableView, cellForRowAtIndexPath: indexPath)
     # return the UITableViewCell for the row
-    @reuseIdentifier ||= "PROCESS"
+    @reuseIdentifier ||= "DYNO"
     cell = tableView.dequeueReusableCellWithIdentifier(@reuseIdentifier) || begin
-    ProcessView.alloc.init
+      DynoView.alloc.init
     end
-    cell.process = @data[indexPath.row]
+    cell.dyno = @data[indexPath.row]
     cell
   end
 
@@ -49,25 +50,25 @@ class ProcessesController < UITableViewController
   end
 
   def tableView(tableView, didSelectRowAtIndexPath: indexPath)
-    @process = @data[indexPath.row]
-    @process_action = ProcessAction.new(@process)
-    @process_action.controller = self
+    @dyno = @data[indexPath.row]
+    @dyno_action = DynoAction.new(@dyno)
+    @dyno_action.controller = self
   end
 end
 
-class ProcessAction
+class DynoAction
   attr_accessor :controller
 
-  def initialize(process)
-    @process = process
-    UIActionSheet.alert "Restart #{@process.type} process?", buttons: ['Cancel', 'Restart Process', 'Number of Dynos'],
+  def initialize(dyno)
+    @dyno = dyno
+    UIActionSheet.alert "Restart #{@dyno.type} dyno?", buttons: ['Cancel', 'Restart dyno', 'Number of Dynos'],
       cancel:      proc { },
       destructive: proc { restart_app },
       success:     proc { change_number_of_instances }
   end
 
   def restart_app
-    @process.restart do |response|
+    @dyno.restart do |response|
       if response.ok?
         TempAlert.alert "Restarted", true
       else
@@ -107,7 +108,7 @@ class ProcessAction
     @picker_view = UIPickerView.alloc.initWithFrame([[0, 44], [320, 216]])
     @picker_view.showsSelectionIndicator = true
     @picker_view.delegate = @picker_view.dataSource = @picker_delegate
-    @picker_view.selectRow(@process.count, inComponent:0, animated:false)
+    @picker_view.selectRow(@dyno.quantity, inComponent:0, animated:false)
     @keyboard_view << @picker_view
     self.controller.tabBarController.view << @keyboard_view
     @modal_view.fade_in
@@ -115,9 +116,9 @@ class ProcessAction
   end
 
   def done
-    @process.dynos = @picker_view.selectedRowInComponent(0)
-    @process.update do |response|
-      TempAlert.alert "#{@process.count} dynos", true
+    @dyno.quantity = @picker_view.selectedRowInComponent(0)
+    @dyno.update do |response|
+      TempAlert.alert "#{@dyno.quantity} dynos", true
       self.controller.view.reloadData
     end
     cancel

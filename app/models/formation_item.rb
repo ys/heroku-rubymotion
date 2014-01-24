@@ -1,14 +1,10 @@
-class Dyno
+class FormationItem
   PS_PROPERTIES = [:id,
-                   :name,
-                   :action,
-                   :app_name,
-                   :attach_url,
                    :command,
+                   :app_name,
                    :created_at,
-                   :release_version,
+                   :quantity,
                    :size,
-                   :state,
                    :type,
                    :updated_at]
 
@@ -18,16 +14,21 @@ class Dyno
 
   def initialize(opts = nil)
     opts ||= {}
-    # Release is reserved word in Obj-C
-    opts.delete('release')
     setValuesForKeysWithDictionary(opts)
   end
 
   def restart(&block)
-    Heroku.instance.restart_dyno(self.app_name, self.type) do |response|
+    Heroku.instance.restart_dyno(app_name, type) do |response|
       block.call response
     end
   end
 
+  def update(&block)
+    if self.quantity >= 0
+      Heroku.instance.scale_dyno(self.app_name, self.type, self.quantity) do |response|
+        block.call response
+      end
+    end
+  end
 end
 

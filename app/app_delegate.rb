@@ -3,7 +3,7 @@ class AppDelegate
   attr_reader :base_controller, :window
 
   def application(application, didFinishLaunchingWithOptions:launchOptions)
-    NewRelicAgent.startWithApplicationToken 'AA670ce7f87593469e6d4f0988245a1739d2892f99'
+    NewRelicAgent.startWithApplicationToken NSBundle.mainBundle.objectForInfoDictionaryKey('NEWRELIC_APP')
 
     UINavigationBar.appearance.setBackgroundImage 'depressed.png'.uiimage, forBarMetrics:UIBarMetricsDefault
     UINavigationBar.appearance.setTitleTextAttributes({

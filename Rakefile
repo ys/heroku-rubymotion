@@ -7,6 +7,7 @@ require 'bubble-wrap/reactor'
 require 'sugarcube'
 require 'sugarcube-gestures'
 require 'motion-testflight'
+require 'teacup'
 
 Bundler.require
 
@@ -42,10 +43,12 @@ Motion::Project::App.setup do |app|
 
   app.testflight do
     app.testflight.sdk = 'vendor/TestFlightSDK'
-    app.testflight.api_token  = '3a009a08d4a8d14db482e312c6794eb3_NjI5MzA3MjAxMi0wOS0xNSAwODoyMToxNy4xMDg2MzA'
-    app.testflight.team_token = 'f8733c3f121e1d69be2f617439f69890_MjIxMjU4MjAxMy0wNS0wOCAyMDowOToxNi40Mjk1MjQ'
-    app.testflight.app_token  = 'a6c69d07-8f0c-4d62-8314-fd87edf36358'
+    app.testflight.api_token  = ENV['TF_API_TOKEN']
+    app.testflight.team_token = ENV['TF_TEAM_TOKEN']
+    app.testflight.app_token  = ENV['TF_APP_TOKEN']
     app.testflight.notify = true # default is false
   end
+
+  app.info_plist['NEWRELIC_APP'] = ENV['NEWRELIC_APP']
 
 end

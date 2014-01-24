@@ -29,8 +29,12 @@ class Heroku
     authorized_delete("/apps/#{application_name}/collaborators/#{email}", &block)
   end
 
-  def processes(application_name, &block)
+  def dynos(application_name, &block)
     authorized_call("/apps/#{application_name}/dynos", &block)
+  end
+
+  def formation(application_name, &block)
+    authorized_call("/apps/#{application_name}/formation", &block)
   end
 
   def addons(application_name, &block)
@@ -42,20 +46,22 @@ class Heroku
   end
 
   def update_config(application_name, key, value, &block)
-    body = BW::JSON.generate({key => value})
-    authorized_put("/apps/#{application_name}/config-vars", body, &block)
+    body = {key => value}
+    authorized_patch("/apps/#{application_name}/config-vars", body, &block)
   end
 
-  def restart_process(application_name, process_type, &block)
-    authorized_post("/apps/#{application_name}/ps/restart?type=#{process_type}", &block)
+  def restart_dyno(application_name, dyno_type, &block)
+    body = {}
+    authorized_delete("/apps/#{application_name}/dynos/#{dyno_type}", &block)
   end
 
-  def scale_process(application_name, process_type, quantity, &block)
-    authorized_post("/apps/#{application_name}/ps/scale?type=#{process_type}&qty=#{quantity}", &block)
+  def scale_dyno(application_name, dyno_type, quantity, &block)
+    body = { quantity: quantity }
+    authorized_patch("/apps/#{application_name}/formation/#{dyno_type}", body, &block)
   end
 
   def restart(application_name, &block)
-    authorized_post("/apps/#{application_name}/ps/restart", &block)
+    authorized_delete("/apps/#{application_name}/dynos", &block)
   end
 
   def authorized_call(path, &block)
@@ -72,6 +78,12 @@ class Heroku
 
   def authorized_put(path, body, &block)
     BW::HTTP.put("#{HEROKU_API}#{path}", { payload: body , headers: authorization_headers }) do |response|
+      block.call(HerokuResponse.new(response)) if block
+    end
+  end
+
+  def authorized_patch(path, body, &block)
+    BW::HTTP.patch("#{HEROKU_API}#{path}", { payload: BW::JSON.generate(body), headers: authorization_headers }) do |response|
       block.call(HerokuResponse.new(response)) if block
     end
   end
@@ -95,7 +107,8 @@ class Heroku
 
   def headers
     {
-      "Accept" => "application/vnd.heroku+json; version=3",
+      "Accept"       => "application/vnd.heroku+json; version=3",
+      "Content-type" => "application/json",
     }
   end
 end

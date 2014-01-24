@@ -147,6 +147,14 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
 
 #define DEFAULT_DURATION 0.0
 
+@interface IIViewDeckView : UIView {
+    BOOL _userInteractionEnabled;
+}
+
+@property (nonatomic, assign) BOOL allowUserInteractionEnabled;
+
+@end
+
 @interface UIViewController (UIViewDeckController_ViewContainmentEmulation_Fakes)
 - (void)vdc_addChildViewController:(UIViewController *)childController;
 - (void)vdc_removeFromParentViewController;
@@ -192,10 +200,12 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
 - (void)centerViewVisible;
 - (void)centerViewHidden;
 - (void)centerTapped;
+- (void)setAccessibilityForCenterTapper;
 
 - (void)addPanners;
 - (void)removePanners;
-
+- (void)setNeedsAddPanners;
+- (void)addPannersIfAllPannersAreInactiveAndNeeded;
 
 - (BOOL)checkCanOpenSide:(IIViewDeckSide)viewDeckSide;
 - (BOOL)checkCanCloseSide:(IIViewDeckSide)viewDeckSide;
@@ -270,57 +280,70 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
 @synthesize openSlideAnimationDuration = _openSlideAnimationDuration;
 @synthesize closeSlideAnimationDuration = _closeSlideAnimationDuration;
 @synthesize parallaxAmount = _parallaxAmount;
+@synthesize centerTapperAccessibilityLabel = _centerTapperAccessibilityLabel;
+@synthesize centerTapperAccessibilityHint = _centerTapperAccessibilityHint;
 
 #pragma mark - Initalisation and deallocation
 
+- (void)commonInitWithCenterViewController:(UIViewController *)centerController
+{
+    _elastic = YES;
+    _willAppearShouldArrangeViewsAfterRotation = (UIInterfaceOrientation)UIDeviceOrientationUnknown;
+    _panningMode = IIViewDeckFullViewPanning;
+    _panningCancelsTouchesInView = YES; // let's default to standard IOS behavior.
+    _navigationControllerBehavior = IIViewDeckNavigationControllerContained;
+    _centerhiddenInteractivity = IIViewDeckCenterHiddenUserInteractive;
+    _sizeMode = IIViewDeckLedgeSizeMode;
+    _viewAppeared = 0;
+    _viewFirstAppeared = NO;
+    _resizesCenterView = NO;
+    _automaticallyUpdateTabBarItems = NO;
+    self.panners = [NSMutableArray array];
+    self.enabled = YES;
+    _offset = 0;
+    _bounceDurationFactor = 0.3;
+    _openSlideAnimationDuration = 0.3;
+    _closeSlideAnimationDuration = 0.3;
+    _offsetOrientation = IIViewDeckHorizontalOrientation;
+    
+    _delegate = nil;
+    _delegateMode = IIViewDeckDelegateOnly;
+    
+    self.originalShadowRadius = 0;
+    self.originalShadowOffset = CGSizeZero;
+    self.originalShadowColor = nil;
+    self.originalShadowOpacity = 0;
+    self.originalShadowPath = nil;
+    
+    _slidingController = nil;
+    self.centerController = centerController;
+    self.leftController = nil;
+    self.rightController = nil;
+    self.topController = nil;
+    self.bottomController = nil;
+    
+    _ledge[IIViewDeckLeftSide] = _ledge[IIViewDeckRightSide] = _ledge[IIViewDeckTopSide] = _ledge[IIViewDeckBottomSide] = 44;
+}
+
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
-    return [self initWithCenterViewController:nil];
+    if ((self = [super initWithCoder:aDecoder])) {
+        [self commonInitWithCenterViewController:nil];
+    }
+    return self;
 }
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
-    return [self initWithCenterViewController:nil];
+    if ((self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil])) {
+        [self commonInitWithCenterViewController:nil];
+    }
+    return self;
 }
 
 - (id)initWithCenterViewController:(UIViewController*)centerController {
     if ((self = [super initWithNibName:nil bundle:nil])) {
-        _elastic = YES;
-        _willAppearShouldArrangeViewsAfterRotation = (UIInterfaceOrientation)UIDeviceOrientationUnknown;
-        _panningMode = IIViewDeckFullViewPanning;
-        _panningCancelsTouchesInView = NO;
-        _navigationControllerBehavior = IIViewDeckNavigationControllerContained;
-        _centerhiddenInteractivity = IIViewDeckCenterHiddenUserInteractive;
-        _sizeMode = IIViewDeckLedgeSizeMode;
-        _viewAppeared = 0;
-        _viewFirstAppeared = NO;
-        _resizesCenterView = NO;
-        _automaticallyUpdateTabBarItems = NO;
-        self.panners = [NSMutableArray array];
-        self.enabled = YES;
-        _offset = 0;
-        _bounceDurationFactor = 0.3;
-        _openSlideAnimationDuration = 0.3;
-        _closeSlideAnimationDuration = 0.3;
-        _offsetOrientation = IIViewDeckHorizontalOrientation;
-        
-        _delegate = nil;
-        _delegateMode = IIViewDeckDelegateOnly;
-        
-        self.originalShadowRadius = 0;
-        self.originalShadowOffset = CGSizeZero;
-        self.originalShadowColor = nil;
-        self.originalShadowOpacity = 0;
-        self.originalShadowPath = nil;
-        
-        _slidingController = nil;
-        self.centerController = centerController;
-        self.leftController = nil;
-        self.rightController = nil;
-        self.topController = nil;
-        self.bottomController = nil;
-
-        _ledge[IIViewDeckLeftSide] = _ledge[IIViewDeckRightSide] = _ledge[IIViewDeckTopSide] = _ledge[IIViewDeckBottomSide] = 44;
+        [self commonInitWithCenterViewController:centerController];
     }
     return self;
 }
@@ -761,7 +784,7 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
     _offset = 0;
     _viewFirstAppeared = NO;
     _viewAppeared = 0;
-    self.view = II_AUTORELEASE([[UIView alloc] init]);
+    self.view = II_AUTORELEASE([[IIViewDeckView alloc] init]);
     self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.view.autoresizesSubviews = YES;
     self.view.clipsToBounds = YES;
@@ -870,7 +893,7 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
             [self hideAppropriateSideViews];
         });
         
-        [self addPanners];
+        [self setNeedsAddPanners];
         
         if ([self isSideClosed:IIViewDeckLeftSide] && [self isSideClosed:IIViewDeckRightSide] && [self isSideClosed:IIViewDeckTopSide] && [self isSideClosed:IIViewDeckBottomSide])
             [self centerViewVisible];
@@ -878,10 +901,6 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
             [self centerViewHidden];
     }
     else if (_willAppearShouldArrangeViewsAfterRotation != UIDeviceOrientationUnknown) {
-        for (NSString* key in [self.view.layer animationKeys]) {
-            NSLog(@"%@ %f", [self.view.layer animationForKey:key], [self.view.layer animationForKey:key].duration);
-        }
-        
         [self willRotateToInterfaceOrientation:self.interfaceOrientation duration:0];
         [self willAnimateRotationToInterfaceOrientation:self.interfaceOrientation duration:0];
         [self didRotateFromInterfaceOrientation:_willAppearShouldArrangeViewsAfterRotation];
@@ -1038,6 +1057,8 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
     [self relayRotationMethod:^(UIViewController *controller) {
         [controller didRotateFromInterfaceOrientation:fromInterfaceOrientation];
     }];
+    
+    [self setAccessibilityForCenterTapper]; // update since the frame and the frame's intersection with the window will have changed
 }
 
 - (void)arrangeViewsAfterRotation {
@@ -1398,7 +1419,7 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
     
     if (duration == DEFAULT_DURATION) duration = [self openSlideDuration:animated];
     
-    UIViewAnimationOptions options = UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionLayoutSubviews | UIViewAnimationOptionBeginFromCurrentState;
+    UIViewAnimationOptions options = UIViewAnimationOptionLayoutSubviews | UIViewAnimationOptionBeginFromCurrentState;
     
     IIViewDeckControllerBlock finish = ^(IIViewDeckController *controller, BOOL success) {
         if (!success) {
@@ -1407,14 +1428,14 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
         }
         
         [self notifyWillOpenSide:side animated:animated];
-        BOOL wasEnabled = self.view.userInteractionEnabled;
-        self.view.userInteractionEnabled = NO;
+        [self disableUserInteraction];
         [UIView animateWithDuration:duration delay:0 options:options animations:^{
             [self controllerForSide:side].view.hidden = NO;
             [self setSlidingFrameForOffset:[self ledgeOffsetForSide:side] forOrientation:IIViewDeckOffsetOrientationFromIIViewDeckSide(side)];
             [self centerViewHidden];
         } completion:^(BOOL finished) {
-            self.view.userInteractionEnabled = wasEnabled;
+            [self enableUserInteraction];
+            [self setAccessibilityForCenterTapper]; // update since the frame and the frame's intersection with the window will have changed
             if (completed) completed(self, YES);
             [self notifyDidOpenSide:side animated:animated];
             UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
@@ -1422,11 +1443,12 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
     };
     
     if ([self isSideClosed:side]) {
-        options |= UIViewAnimationOptionCurveEaseIn;
         // try to close any open view first
         return [self closeOpenViewAnimated:animated completion:finish];
     }
     else {
+        options |= UIViewAnimationOptionCurveEaseOut;
+
         finish(self, YES);
         return YES;
     }
@@ -1448,7 +1470,7 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
     };
     
     UIViewAnimationOptions options = UIViewAnimationOptionLayoutSubviews | UIViewAnimationOptionBeginFromCurrentState;
-    if ([self isSideClosed:side]) options |= UIViewAnimationCurveEaseIn;
+    if ([self isSideClosed:side]) options |= UIViewAnimationOptionCurveEaseIn;
 
     return [self closeOpenViewAnimated:animated completion:^(IIViewDeckController *controller, BOOL success) {
         if (!success) {
@@ -1461,8 +1483,7 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
       
         // first open the view completely, run the block (to allow changes)
         [self notifyWillOpenSide:side animated:animated];
-        BOOL wasEnabled = self.view.userInteractionEnabled;
-        self.view.userInteractionEnabled = NO;
+        [self disableUserInteraction];
         [UIView animateWithDuration:[self openSlideDuration:YES]*longFactor delay:0 options:options animations:^{
             [self controllerForSide:side].view.hidden = NO;
             [self setSlidingFrameForOffset:bounceOffset forOrientation:IIViewDeckOffsetOrientationFromIIViewDeckSide(side)];
@@ -1473,10 +1494,11 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
             [self performDelegate:@selector(viewDeckController:didBounceViewSide:openingController:) side:side controller:_controllers[side]];
             
             // now slide the view back to the ledge position
-            [UIView animateWithDuration:[self openSlideDuration:YES]*shortFactor delay:0 options:UIViewAnimationCurveEaseInOut | UIViewAnimationOptionLayoutSubviews | UIViewAnimationOptionBeginFromCurrentState animations:^{
+            [UIView animateWithDuration:[self openSlideDuration:YES]*shortFactor delay:0 options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionLayoutSubviews | UIViewAnimationOptionBeginFromCurrentState animations:^{
                 [self setSlidingFrameForOffset:targetOffset forOrientation:IIViewDeckOffsetOrientationFromIIViewDeckSide(side)];
             } completion:^(BOOL finished) {
-                self.view.userInteractionEnabled = wasEnabled;
+                [self enableUserInteraction];
+                [self setAccessibilityForCenterTapper]; // update since the frame and the frame's intersection with the window will have changed
                 if (completed) completed(self, YES);
                 [self notifyDidOpenSide:side animated:animated];
                 UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
@@ -1504,18 +1526,17 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
     
     if (duration == DEFAULT_DURATION) duration = [self closeSlideDuration:animated];
     
-    UIViewAnimationOptions options = UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionLayoutSubviews | UIViewAnimationOptionBeginFromCurrentState;
-    if ([self isSideOpen:side]) options |= UIViewAnimationOptionCurveEaseIn;
+    UIViewAnimationOptions options = UIViewAnimationOptionLayoutSubviews | UIViewAnimationOptionBeginFromCurrentState;
+    options |= [self isSideOpen:side] ? UIViewAnimationOptionCurveEaseInOut : UIViewAnimationOptionCurveEaseOut;
     
     [self notifyWillCloseSide:side animated:animated];
-    BOOL wasEnabled = self.view.userInteractionEnabled;
-    self.view.userInteractionEnabled = NO;
+    [self disableUserInteraction];
     [UIView animateWithDuration:duration delay:0 options:options animations:^{
         [self setSlidingFrameForOffset:0 forOrientation:IIViewDeckOffsetOrientationFromIIViewDeckSide(side)];
         [self centerViewVisible];
     } completion:^(BOOL finished) {
         [self hideAppropriateSideViews];
-        self.view.userInteractionEnabled = wasEnabled;
+        [self enableUserInteraction];
         if (completed) completed(self, YES);
         [self notifyDidCloseSide:side animated:animated];
         UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
@@ -1546,7 +1567,7 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
     }
     
     UIViewAnimationOptions options = UIViewAnimationOptionLayoutSubviews | UIViewAnimationOptionBeginFromCurrentState;
-    if ([self isSideOpen:side]) options |= UIViewAnimationCurveEaseIn;
+    if ([self isSideOpen:side]) options |= UIViewAnimationOptionCurveEaseIn;
     
     BOOL animated = YES;
     
@@ -1555,8 +1576,7 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
   
     // first open the view completely, run the block (to allow changes) and close it again.
     [self notifyWillCloseSide:side animated:animated];
-    BOOL wasEnabled = self.view.userInteractionEnabled;
-    self.view.userInteractionEnabled = NO;
+    [self disableUserInteraction];
     [UIView animateWithDuration:[self openSlideDuration:YES]*shortFactor delay:0 options:options animations:^{
         [self setSlidingFrameForOffset:bounceOffset forOrientation:IIViewDeckOffsetOrientationFromIIViewDeckSide(side)];
     } completion:^(BOOL finished) {
@@ -1569,7 +1589,7 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
             [self centerViewVisible];
         } completion:^(BOOL finished2) {
             [self hideAppropriateSideViews];
-            self.view.userInteractionEnabled = wasEnabled;
+            [self enableUserInteraction];
             if (completed) completed(self, YES);
             [self notifyDidCloseSide:side animated:animated];
             UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
@@ -1729,13 +1749,12 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
     UINavigationController* navController = self.centerController.navigationController ? self.centerController.navigationController :(UINavigationController*)self.centerController;
     [navController pushViewController:controller animated:NO];
     
-    BOOL wasEnabled = self.view.userInteractionEnabled;
-    self.view.userInteractionEnabled = NO;
+    [self disableUserInteraction];
     [UIView animateWithDuration:0.3 delay:0 options:0 animations:^{
         shotView.frame = CGRectOffset(shotView.frame, -view.frame.size.width, 0);
         view.frame = targetFrame;
     } completion:^(BOOL finished) {
-        self.view.userInteractionEnabled = wasEnabled;
+        [self enableUserInteraction];
         [shotView removeFromSuperview];
     }];
 }
@@ -2125,19 +2144,17 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
 #pragma mark - center view hidden stuff
 
 - (void)centerViewVisible {
-    [self removePanners];
     if (self.centerTapper) {
         [self.centerTapper removeTarget:self action:@selector(centerTapped) forControlEvents:UIControlEventTouchUpInside];
         [self.centerTapper removeFromSuperview];
     }
     self.centerTapper = nil;
-    [self addPanners];
+    [self setNeedsAddPanners];
     [self applyShadowToSlidingViewAnimated:YES];
 }
 
 - (void)centerViewHidden {
     if (!IIViewDeckCenterHiddenIsInteractive(self.centerhiddenInteractivity)) {
-        [self removePanners];
         if (!self.centerTapper) {
             self.centerTapper = [UIButton buttonWithType:UIButtonTypeCustom];
             [self.centerTapper setBackgroundImage:nil forState:UIControlStateNormal];
@@ -2147,11 +2164,13 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
             self.centerTapper.frame = [self.centerView bounds];
             [self.centerTapper addTarget:self action:@selector(centerTapped) forControlEvents:UIControlEventTouchUpInside];
             self.centerTapper.backgroundColor = [UIColor clearColor];
+            self.centerTapper.accessibilityViewIsModal = YES;
         }
         [self.centerView addSubview:self.centerTapper];
         self.centerTapper.frame = [self.centerView bounds];
+        [self setAccessibilityForCenterTapper]; // set accessibility label, hint, and frame
         
-        [self addPanners];
+        [self setNeedsAddPanners];
     }
     
     [self applyShadowToSlidingViewAnimated:YES];
@@ -2187,11 +2206,59 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
     }
 }
 
+- (void)disableUserInteraction {
+    @synchronized (self.view) {
+        ++_disabledUserInteractions;
+        if (_disabledUserInteractions == 1) {
+            ((IIViewDeckView*)self.view).allowUserInteractionEnabled = NO;
+        }
+    }
+}
+
+- (void)enableUserInteraction {
+    @synchronized (self.view) {
+        if (_disabledUserInteractions > 0) {
+            --_disabledUserInteractions;
+            if (_disabledUserInteractions == 0) {
+                ((IIViewDeckView*)self.view).allowUserInteractionEnabled = YES;
+            }
+        }
+    }
+}
+
+- (void)setAccessibilityForCenterTapper {
+    if (self.centerTapper) {
+        self.centerTapper.accessibilityLabel = self.centerTapperAccessibilityLabel;
+        self.centerTapper.accessibilityHint = self.centerTapperAccessibilityHint;
+        self.centerTapper.accessibilityFrame = CGRectIntersection(self.view.window.bounds, [self.centerTapper convertRect:self.centerTapper.bounds toView:nil]);
+    }
+}
+
+- (void)setCenterTapperAccessibilityLabel:(NSString *)centerTapperAccessibilityLabel {
+    if (![_centerTapperAccessibilityLabel isEqualToString:centerTapperAccessibilityLabel]) {
+        _centerTapperAccessibilityLabel = centerTapperAccessibilityLabel;
+        [self setAccessibilityForCenterTapper];
+    }
+}
+
+- (void)setCenterTapperAccessibilityHint:(NSString *)centerTapperAccessibilityHint {
+    if (![_centerTapperAccessibilityHint isEqualToString:centerTapperAccessibilityHint]) {
+        _centerTapperAccessibilityHint = centerTapperAccessibilityHint;
+        [self setAccessibilityForCenterTapper];
+    }
+}
+
 #pragma mark - Panning
 
 - (BOOL)gestureRecognizerShouldBegin:(UIPanGestureRecognizer *)panner {
-    if (self.panningMode == IIViewDeckNavigationBarOrOpenCenterPanning && panner.view == self.slidingControllerView && [self isAnySideOpen])
-        return NO;
+    if (self.panningMode == IIViewDeckNavigationBarOrOpenCenterPanning && panner.view == self.slidingControllerView) {
+        if ([self isAnySideOpen])
+            return YES;
+
+        UINavigationController* navController = [self.centerController isKindOfClass:[UINavigationController class]] ? (UINavigationController*)self.centerController : self.centerController.navigationController;
+        CGPoint loc = [panner locationInView:navController.navigationBar];
+        return CGRectContainsPoint(navController.navigationBar.bounds, loc);
+    }
     
     if (self.panningGestureDelegate && [self.panningGestureDelegate respondsToSelector:@selector(gestureRecognizerShouldBegin:)]) {
         BOOL result = [self.panningGestureDelegate gestureRecognizerShouldBegin:panner];
@@ -2430,7 +2497,8 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
                 // swipe to the right
                 
                 // Animation duration based on velocity
-                CGFloat pointsToAnimate = fabsf(self.leftSize - self.slidingControllerView.frame.origin.x);
+                CGFloat maxDistance = CGRectGetWidth(self.view.frame) - self.leftSize;
+                CGFloat pointsToAnimate = fabsf(maxDistance - self.slidingControllerView.frame.origin.x);
                 NSTimeInterval animationDuration = durationToAnimate(pointsToAnimate, orientationVelocity);
                 
                 if (v > 0) {
@@ -2443,9 +2511,12 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
     }
     else
         [self hideAppropriateSideViews];
-
+    
+    [self setAccessibilityForCenterTapper]; // update since the frame and the frame's intersection with the window will have changed
+    
     [self notifyDidCloseSide:closeSide animated:NO];
     [self notifyDidOpenSide:openSide animated:NO];
+    [self addPannersIfAllPannersAreInactiveAndNeeded];
 }
 
 - (void) setParallax {
@@ -2482,6 +2553,21 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
     [self.panners addObject:panner];
 }
 
+- (void)setNeedsAddPanners {
+    if (_needsAddPannersIfAllPannersAreInactive)
+        return;
+    if ([self hasActivePanner])
+        _needsAddPannersIfAllPannersAreInactive = YES;
+    else
+        [self addPanners];
+}
+
+- (void)addPannersIfAllPannersAreInactiveAndNeeded {
+    if (!_needsAddPannersIfAllPannersAreInactive || [self hasActivePanner])
+        return;
+    [self addPanners];
+    _needsAddPannersIfAllPannersAreInactive = NO;
+}
 
 - (void)addPanners {
     [self removePanners];
@@ -2535,6 +2621,16 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
     }
     [self.panners removeAllObjects];
 }
+
+- (BOOL)hasActivePanner {
+    for (UIPanGestureRecognizer *panner in self.panners) {
+        if (panner.state == UIGestureRecognizerStateBegan || panner.state == UIGestureRecognizerStateChanged) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
 
 #pragma mark - Delegate convenience methods
 
@@ -2673,9 +2769,8 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
 
 - (void)setPanningMode:(IIViewDeckPanningMode)panningMode {
     if (_viewFirstAppeared) {
-        [self removePanners];
         _panningMode = panningMode;
-        [self addPanners];
+        [self setNeedsAddPanners];
     }
     else
         _panningMode = panningMode;
@@ -2688,7 +2783,14 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
         II_RETAIN(_panningView);
         
         if (_viewFirstAppeared && _panningMode == IIViewDeckPanningViewPanning)
-            [self addPanners];
+            [self setNeedsAddPanners];
+    }
+}
+
+- (void)setPanningCancelsTouchesInView:(BOOL)panningCancelsTouchesInView {
+    _panningCancelsTouchesInView = panningCancelsTouchesInView;
+    for (UIGestureRecognizer* panner in _panners) {
+        panner.cancelsTouchesInView = panningCancelsTouchesInView;
     }
 }
 
@@ -2899,6 +3001,7 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
             self.hidesBottomBarWhenPushed = _centerController.hidesBottomBarWhenPushed;
         }
         
+        [_centerController view]; // make sure the view is loaded before calling viewWillAppear:
         afterBlock(_centerController);
         [_centerController didMoveToParentViewController:self];
         
@@ -3062,7 +3165,47 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
 
 #pragma mark -
 
-@implementation UIViewController (UIViewDeckItem) 
+@implementation IIViewDeckView
+
+@synthesize allowUserInteractionEnabled = _allowUserInteractionEnabled;
+
+- (id)init {
+    if ((self = [super init])) {
+        _allowUserInteractionEnabled = YES;
+        _userInteractionEnabled = [self isUserInteractionEnabled];
+    }
+    return self;
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder {
+    if ((self = [super initWithCoder:aDecoder])) {
+        _allowUserInteractionEnabled = YES;
+        _userInteractionEnabled = [self isUserInteractionEnabled];
+    }
+    return self;
+}
+
+- (id)initWithFrame:(CGRect)frame {
+    if ((self = [super initWithFrame:frame])) {
+        _allowUserInteractionEnabled = YES;
+        _userInteractionEnabled = [self isUserInteractionEnabled];
+    }
+    return self;
+}
+
+- (void)setAllowUserInteractionEnabled:(BOOL)allowUserInteractionEnabled {
+    _allowUserInteractionEnabled = allowUserInteractionEnabled;
+    [super setUserInteractionEnabled:_allowUserInteractionEnabled && _userInteractionEnabled];
+}
+
+- (void)setUserInteractionEnabled:(BOOL)userInteractionEnabled {
+    _userInteractionEnabled = userInteractionEnabled;
+    [super setUserInteractionEnabled:_allowUserInteractionEnabled && _userInteractionEnabled];
+}
+
+@end
+
+@implementation UIViewController (UIViewDeckItem)
 
 @dynamic viewDeckController;
 
@@ -3075,7 +3218,7 @@ static const char* viewDeckControllerKey = "ViewDeckController";
 - (IIViewDeckController*)viewDeckController {
     IIViewDeckController* result = [self viewDeckController_core];
     if (!result && self.navigationController) {
-        result = [self.navigationController viewDeckController];
+        result = [self.navigationController viewDeckController_core];
         if (!result) {
             for (UIViewController* controller in [self.navigationController.viewControllers reverseObjectEnumerator]) {
                 if ([controller isKindOfClass:[IIViewDeckController class]])
@@ -3101,25 +3244,16 @@ static const char* viewDeckControllerKey = "ViewDeckController";
 }
 
 - (void)vdc_presentModalViewController:(UIViewController *)modalViewController animated:(BOOL)animated {
-    UIViewController* controller = self.viewDeckController && (self.viewDeckController.navigationControllerBehavior == IIViewDeckNavigationControllerIntegrated || ![self.viewDeckController.centerController isKindOfClass:[UINavigationController class]]) ? self.viewDeckController : self;
+    UIViewController* controller = self.viewDeckController ?: self;
     [controller vdc_presentModalViewController:modalViewController animated:animated]; // when we get here, the vdc_ method is actually the old, real method
 }
 
-- (void)vdc_dismissModalViewControllerAnimated:(BOOL)animated {
-    UIViewController* controller = self.viewDeckController ? self.viewDeckController : self;
-    [controller vdc_dismissModalViewControllerAnimated:animated]; // when we get here, the vdc_ method is actually the old, real method
-}
 
 #ifdef __IPHONE_5_0
 
 - (void)vdc_presentViewController:(UIViewController *)viewControllerToPresent animated:(BOOL)animated completion:(void (^)(void))completion {
-    UIViewController* controller = self.viewDeckController && (self.viewDeckController.navigationControllerBehavior == IIViewDeckNavigationControllerIntegrated || ![self.viewDeckController.centerController isKindOfClass:[UINavigationController class]]) ? self.viewDeckController : self;
+    UIViewController* controller = self.viewDeckController ?: self;
     [controller vdc_presentViewController:viewControllerToPresent animated:animated completion:completion]; // when we get here, the vdc_ method is actually the old, real method
-}
-
-- (void)vdc_dismissViewControllerAnimated:(BOOL)flag completion:(void (^)(void))completion {
-    UIViewController* controller = self.viewDeckController ? self.viewDeckController : self;
-    [controller vdc_dismissViewControllerAnimated:flag completion:completion]; // when we get here, the vdc_ method is actually the old, real method
 }
 
 #endif
@@ -3135,9 +3269,11 @@ static const char* viewDeckControllerKey = "ViewDeckController";
 }
 
 + (void)vdc_swizzle {
-    SEL presentModal = @selector(presentModalViewController:animated:);
-    SEL vdcPresentModal = @selector(vdc_presentModalViewController:animated:);
-    method_exchangeImplementations(class_getInstanceMethod(self, presentModal), class_getInstanceMethod(self, vdcPresentModal));
+    if (![self instancesRespondToSelector:@selector(presentViewController:animated:completion:)]) {
+        SEL presentModal = @selector(presentModalViewController:animated:);
+        SEL vdcPresentModal = @selector(vdc_presentModalViewController:animated:);
+        method_exchangeImplementations(class_getInstanceMethod(self, presentModal), class_getInstanceMethod(self, vdcPresentModal));
+    }
     
     SEL presentVC = @selector(presentViewController:animated:completion:);
     SEL vdcPresentVC = @selector(vdc_presentViewController:animated:completion:);

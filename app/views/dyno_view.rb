@@ -1,21 +1,21 @@
-class ProcessView < UITableViewCell
+class DynoView < UITableViewCell
   include BW::KVO
 
-  attr_accessor :process, :type, :count
+  attr_accessor :dyno, :type, :quantity
 
   def init
-    initWithStyle(UITableViewCellStyleDefault, reuseIdentifier:"PROCESS").tap do
+    initWithStyle(UITableViewCellStyleDefault, reuseIdentifier:"dyno").tap do
       textLabel.textColor = 0x20404B.uicolor
       textLabel.backgroundColor = :clear.uicolor
       self.contentView.backgroundColor = :clear.uicolor
       bg_view = UIView.alloc.init
       bg_view.setBackgroundColor 0xD3C7B9.uicolor
       setSelectedBackgroundView bg_view
-      observe(self, :process) do |_, new_ps|
+      observe(self, :dyno) do |_, new_ps|
         textLabel.text     = new_ps.type.to_s
-        accessoryView.text = new_ps.count.to_s
+        accessoryView.text = new_ps.quantity.to_s
       end
-      observe(process, :count) do |_, new_count|
+      observe(dyno, :count) do |_, new_count|
         accessoryView.text = new_count.to_s
       end
 
@@ -84,10 +84,10 @@ class ProcessView < UITableViewCell
     self.accessoryView = restart_button
   end
 
-  def set_process_count_change_view
+  def set_dyno_count_change_view
     self.accessoryView = nil
     @ps_count = UILabel.alloc.initWithFrame [[265, 8], [26, 26]]
-    @ps_count.text = @process.count.to_s
+    @ps_count.text = @dyno.count.to_s
     @ps_count.textAlignment = UITextAlignmentCenter
     @ps_count.backgroundColor = :clear.uicolor
     self.contentView.addSubview @ps_count

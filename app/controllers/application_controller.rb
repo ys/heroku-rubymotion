@@ -11,9 +11,9 @@ class ApplicationController < UIViewController
 
   def app=(app)
     @app = app
-    observe(@app, :processes) do |old_value, new_value|
-      @app_view.update_other_dynos_count @app.other_processes
-      @app_view.update_web_dynos_count   @app.web_processes
+    observe(@app, :dynos) do |old_value, new_value|
+      @app_view.update_other_dynos_count @app.other_dynos
+      @app_view.update_web_dynos_count   @app.web_dynos
     end
   end
 
